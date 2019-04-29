@@ -1,6 +1,8 @@
 ﻿using HtmlAgilityPack;
+using Newtonsoft.Json;
 using parser.Helpers;
 using parser.Models;
+using parser.Models.Json;
 using parser.Windows;
 using System;
 using System.Collections.ObjectModel;
@@ -147,12 +149,7 @@ namespace parser.ViewModels
             FromPage = 1;
             ToPage = 1;
             Movies = new ObservableCollection<Movie>();
-            Comments = new ObservableCollection<Comment>()
-            {
-                new Comment("Modest","Frayer",DateTime.Now),
-                new Comment("Modest1","Frayer1",DateTime.Now),
-
-            };
+            Comments = new ObservableCollection<Comment>();
             GetAllInfoCommand = new Command(GetAllInfo);
             OpenParsingMovieWindowCommand = new Command(OpenParsingMovieWindow);
             StartParsingCommand = new Command(StartParsing);
@@ -239,8 +236,7 @@ namespace parser.ViewModels
                     var story = doc.DocumentNode.SelectSingleNode("//div[@class='m-desc full-text clearfix']")?.InnerHtml ?? "<div class=\"m-info\">";
                     Movies[i].Story = HtmlHelper.StripHtml(story.Substring(0, story.IndexOf("<div class=\"m-info\">"))).Replace("\t", "").Replace("\n","").Replace("  ", " ");
 
-                    //Getting comment
-
+                    //Getting comments
                     int cstart = 1;
                     while(true)
                     {
@@ -248,6 +244,22 @@ namespace parser.ViewModels
                         {
                             var url = $"https://uafilm.tv/engine/ajax/comments.php?cstart={cstart}&news_id={Movies[i].Id}&skin=uafilm&massact=disable";
                             var json = await httpClient.GetStringAsync(url);
+                            var response = JsonConvert.DeserializeObject<CommentResponse>(json);
+                            if(string.IsNullOrEmpty(response.comments))
+                            {
+                                break;
+                            }
+                            doc.LoadHtml(response.comments);
+
+                            var commentAuthors = doc.DocumentNode.SelectNodes("//div[@class='comm-author']");
+                            var commentTexts = doc.DocumentNode.SelectNodes("//div[@class='comm-body clearfix']/div");
+                            for(int j=0; j< commentAuthors.Count; ++j)
+                            {
+                                var comment = new Comment(commentAuthors[j].InnerText, commentTexts[j].InnerText, DateTime.Now);
+                                Comments.Add(comment);
+                                Movies[i].Comments.Add(comment);
+                            }
+                            ++cstart;
                         }
                     }
 

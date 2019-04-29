@@ -235,11 +235,11 @@
                             <Grid Visibility="{Binding IsCommentsListVisible}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="0.01*"></ColumnDefinition>
                                         <ColumnDefinition Width="0.03*"></ColumnDefinition>
-                                        <ColumnDefinition Width="0.04*"></ColumnDefinition>
                                         <ColumnDefinition Width="0.2*"></ColumnDefinition>
-                                        <ColumnDefinition Width="0.04*"></ColumnDefinition>
-                                        <ColumnDefinition Width="0.04*"></ColumnDefinition>
+                                        <ColumnDefinition Width="0.03*"></ColumnDefinition>
+                                        <ColumnDefinition Width="0.03*"></ColumnDefinition>
                                     </Grid.ColumnDefinitions>
                                     <Border Grid.Column="0" Name="comemntwidth1"></Border>
                                     <Border Grid.Column="1" Name="comemntwidth2"></Border>

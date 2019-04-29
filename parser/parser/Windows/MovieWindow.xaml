@@ -3,13 +3,18 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        xmlns:converters="clr-namespace:parser.Converters"
         xmlns:local="clr-namespace:parser.Windows"
         mc:Ignorable="d"
-        Title="{Binding Path=CurrentMovie.Name, UpdateSourceTrigger=PropertyChanged}" Height="500" Width="700" >
+        Title="{Binding Path=CurrentMovie.Name, UpdateSourceTrigger=PropertyChanged}" Height="800" Width="700" >
+    <Window.Resources>
+        <converters:ListItemIdConverter x:Key="ListItemIdConverter"/>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="3*"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
         <Grid>
             <Grid.ColumnDefinitions>
@@ -83,7 +88,49 @@
             </GroupBox>
         </Grid>
         <GroupBox Header="Коментарі" Margin="3" Grid.Row="1">
-            
+            <Grid Visibility="{Binding IsCommentsListVisible}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.01*"></ColumnDefinition>
+                        <ColumnDefinition Width="0.03*"></ColumnDefinition>
+                        <ColumnDefinition Width="0.2*"></ColumnDefinition>
+                        <ColumnDefinition Width="0.03*"></ColumnDefinition>
+                        <ColumnDefinition Width="0.03*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Name="comemntwidth1"></Border>
+                    <Border Grid.Column="1" Name="comemntwidth2"></Border>
+                    <Border Grid.Column="2" Name="comemntwidth3"></Border>
+                    <Border Grid.Column="3" Name="comemntwidth4"></Border>
+                    <Border Grid.Column="4" Name="comemntwidth5"></Border>
+                </Grid>
+                <ListView x:Name="comments" HorizontalAlignment="Left" Margin="3" ItemsSource="{Binding Path=CurrentMovie.Comments, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="trimmed">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <i:InvokeCommandAction Command="{Binding ShowComemntCommand}" CommandParameter="{Binding SelectedItem, ElementName=comments}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Height" Value="18" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                            <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Text }" />
+                        </Style>
+                    </ListView.Resources>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="№" Width="{Binding ElementName=comemntwidth1, Path=ActualWidth}" DisplayMemberBinding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListViewItem}} , Converter={StaticResource ListItemIdConverter}}" />
+                            <GridViewColumn Header="Автор" Width="{Binding ElementName=comemntwidth2, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentAuthor}" />
+                            <GridViewColumn Header="Текст" Width="{Binding ElementName=comemntwidth3, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentText}" />
+                            <GridViewColumn Header="Дата" Width="{Binding ElementName=comemntwidth4, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentDate}" />
+                            <GridViewColumn Header="Тональність" Width="{Binding ElementName=comemntwidth5, Path=ActualWidth}" DisplayMemberBinding="{Binding Sentiment}" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </Grid>
         </GroupBox>
     </Grid>
 </Window>
