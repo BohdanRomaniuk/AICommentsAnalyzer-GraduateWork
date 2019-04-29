@@ -73,7 +73,11 @@
     <Compile Include="Models\Comment.cs" />
     <Compile Include="Models\Movie.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\MovieWindowViewModel.cs" />
     <Compile Include="ViewModels\ParsingViewModel.cs" />
+    <Compile Include="Windows\MovieWindow.xaml.cs">
+      <DependentUpon>MovieWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\ParsingPagesWindow.xaml.cs">
       <DependentUpon>ParsingPagesWindow.xaml</DependentUpon>
     </Compile>
@@ -89,6 +93,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Windows\MovieWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\ParsingPagesWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

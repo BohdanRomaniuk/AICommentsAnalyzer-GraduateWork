@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -9,42 +9,61 @@ namespace parser.Models
     [Serializable]
     public sealed class Movie : INotifyPropertyChanged, IEquatable<Movie>
     {
-        private string name;
+        private int id; //uafilm id for comment parsing
+        private string ukrName;
+        private string originalName;
         private string link;
         private int year;
         private string genre;
         private string countries;
         private string length;
-        private string imdbLink;
+        private double imdbRate;
         private string companies;
         private string director;
         private string actors;
         private string story;
         private string poster;
         private string posterFileName;
-        private List<Genre> movieGenres;
-        private List<Country> movieCountries;
 
-        public string Name
+        public int Id
         {
-            get
-            {
-                return name;
-            }
+            get => id;
             set
             {
-                name = value;
-                PosterFileName = CreatePosterFileName(value + " (" + Year + ")", Poster);
+                id = value;
+                OnPropertyChanged(nameof(Id));
+            }
+        }
+        public string UkrName
+        {
+            get => ukrName;
+            set
+            {
+                ukrName = value;
+                OnPropertyChanged(nameof(UkrName));
+
+                PosterFileName = CreatePosterFileName(Name + " (" + Year + ")", Poster);
                 OnPropertyChanged(nameof(Name));
                 OnPropertyChanged(nameof(PosterFileName));
             }
         }
+        public string OriginalName
+        {
+            get => originalName;
+            set
+            {
+                originalName = value;
+                OnPropertyChanged(nameof(OriginalName));
+
+                PosterFileName = CreatePosterFileName(Name + " (" + Year + ")", Poster);
+                OnPropertyChanged(nameof(Name));
+                OnPropertyChanged(nameof(PosterFileName));
+            }
+        }
+        public string Name => $"{ukrName} - {originalName}";
         public string Link
         {
-            get
-            {
-                return link;
-            }
+            get => link;
             set
             {
                 link = value;
@@ -53,10 +72,7 @@ namespace parser.Models
         }
         public int Year
         {
-            get
-            {
-                return year;
-            }
+            get => year;
             set
             {
                 year = value;
@@ -65,10 +81,7 @@ namespace parser.Models
         }
         public string Genre
         {
-            get
-            {
-                return genre;
-            }
+            get => genre;
             set
             {
                 genre = value;
@@ -77,10 +90,7 @@ namespace parser.Models
         }
         public string Countries
         {
-            get
-            {
-                return countries;
-            }
+            get => countries;
             set
             {
                 countries = value;
@@ -89,34 +99,25 @@ namespace parser.Models
         }
         public string Length
         {
-            get
-            {
-                return length;
-            }
+            get => length;
             set
             {
                 length = value;
                 OnPropertyChanged(nameof(Length));
             }
         }
-        public string ImdbLink
+        public double ImdbRate
         {
-            get
-            {
-                return imdbLink;
-            }
+            get => imdbRate;
             set
             {
-                imdbLink = value;
-                OnPropertyChanged(nameof(ImdbLink));
+                imdbRate = value;
+                OnPropertyChanged(nameof(ImdbRate));
             }
         }
         public string Companies
         {
-            get
-            {
-                return companies;
-            }
+            get => companies;
             set
             {
                 companies = value;
@@ -125,10 +126,7 @@ namespace parser.Models
         }
         public string Director
         {
-            get
-            {
-                return director;
-            }
+            get => director;
             set
             {
                 director = value;
@@ -137,10 +135,7 @@ namespace parser.Models
         }
         public string Actors
         {
-            get
-            {
-                return actors;
-            }
+            get => actors;
             set
             {
                 actors = value;
@@ -149,10 +144,7 @@ namespace parser.Models
         }
         public string Story
         {
-            get
-            {
-                return story;
-            }
+            get => story;
             set
             {
                 story = value;
@@ -161,10 +153,7 @@ namespace parser.Models
         }
         public string Poster
         {
-            get
-            {
-                return poster;
-            }
+            get => poster;
             set
             {
                 poster = value;
@@ -175,74 +164,48 @@ namespace parser.Models
         }
         public string PosterFileName
         {
-            get
-            {
-                return posterFileName;
-            }
+            get => posterFileName;
             set
             {
                 posterFileName = value;
                 OnPropertyChanged(nameof(PosterFileName));
             }
         }
-        public List<Genre> MovieGenres
-        {
-            get
-            {
-                return movieGenres;
-            }
-            set
-            {
-                movieGenres = value;
-                OnPropertyChanged(nameof(MovieGenres));
-            }
-        }
-        public List<Country> MovieCountries
-        {
-            get
-            {
-                return movieCountries;
-            }
-            set
-            {
-                movieCountries = value;
-                OnPropertyChanged(nameof(MovieCountries));
-            }
-        }
+        public ObservableCollection<Genre> MovieGenres { get; set; }
+        public ObservableCollection<Country> MovieCountries { get; set; }
+        public ObservableCollection<Comment> Comments { get; set; }
 
         public Movie()
         {
-            MovieGenres = new List<Genre>();
-            MovieCountries = new List<Country>();
+            MovieGenres = new ObservableCollection<Genre>();
+            MovieCountries = new ObservableCollection<Country>();
+            Comments = new ObservableCollection<Comment>();
         }
 
-        public Movie(string _name, string _link = "http://", int _year = 0, string _genre = "немає", string _countries = "відсутні", string _length = "00:00:00", string _imdb = "http://", string _companies = "відсутні", string _director = "немає", string _actors = "немає", string _story = "немає", string _poster = "немає", string _posterFileName = "немає")
+        public Movie(string _ukrName, string _link = "http://", int _year = 0, string _genre = "немає", string _countries = "відсутні", string _length = "00:00:00", double _imdb = 0, string _companies = "відсутні", string _director = "немає", string _actors = "немає", string _story = "немає", string _poster = "немає", string _posterFileName = "немає")
         {
-            Name = _name;
+            UkrName = _ukrName;
             Link = _link;
             Year = _year;
             Genre = _genre;
             Countries = _countries;
             Length = _length;
-            ImdbLink = _imdb;
+            ImdbRate = _imdb;
             Companies = _companies;
             Director = _director;
             Actors = _actors;
             Story = _story;
             Poster = _poster;
             PosterFileName = _posterFileName;
-            MovieGenres = new List<Genre>();
-            MovieCountries = new List<Country>();
+
+            MovieGenres = new ObservableCollection<Genre>();
+            MovieCountries = new ObservableCollection<Country>();
+            Comments = new ObservableCollection<Comment>();
         }
 
         public override string ToString()
         {
-            return String.Format("{0,-10}{1,-10}{2,-10}{3,-10}{4,-10}{5,-10}{6,-10}{7,-10}{8,-10}{9,-10}{10,-10}", Name, Link, Year, Genre, Countries, Length, ImdbLink, Companies, Director, Actors, Story, Poster, PosterFileName);
-        }
-
-        public bool Equals(Movie other)
-        {
-            return Name.Equals(other.Name);
+            return string.Format("{0,-10}{1,-10}{2,-10}{3,-10}{4,-10}{5,-10}{6,-10}{7,-10}{8,-10}{9,-10}{10,-10}", Name, Link, Year, Genre, Countries, Length, ImdbRate, Companies, Director, Actors, Story, Poster, PosterFileName);
         }
 
         private static string CreatePosterFileName(string _name, string _url)
@@ -262,6 +225,11 @@ namespace parser.Models
             _name = _name.Replace(Environment.NewLine, " ");
             _name = _name.Replace("\r\n", " ");
             return _name + Path.GetExtension(_url);
+        }
+
+        public bool Equals(Movie other)
+        {
+            return Name.Equals(other.Name);
         }
 
         [field: NonSerialized]

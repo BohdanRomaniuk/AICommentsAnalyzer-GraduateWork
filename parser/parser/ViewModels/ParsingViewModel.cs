@@ -5,6 +5,7 @@ using parser.Windows;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -137,6 +138,7 @@ namespace parser.ViewModels
         public ICommand GetAllInfoCommand { get; }
         public ICommand OpenParsingMovieWindowCommand { get; }
         public ICommand StartParsingCommand { get; }
+        public ICommand ShowMovieCommand { get; }
 
         public ParsingViewModel()
         {
@@ -145,9 +147,16 @@ namespace parser.ViewModels
             FromPage = 1;
             ToPage = 1;
             Movies = new ObservableCollection<Movie>();
+            Comments = new ObservableCollection<Comment>()
+            {
+                new Comment("Modest","Frayer",DateTime.Now),
+                new Comment("Modest1","Frayer1",DateTime.Now),
+
+            };
             GetAllInfoCommand = new Command(GetAllInfo);
             OpenParsingMovieWindowCommand = new Command(OpenParsingMovieWindow);
             StartParsingCommand = new Command(StartParsing);
+            ShowMovieCommand = new Command(ShowMovie);
         }
 
         private async void GetAllInfo(object parameter)
@@ -169,7 +178,11 @@ namespace parser.ViewModels
                     try
                     {
                         string name = urls[i].InnerText;
-                        Movie toAdd = new Movie(name, urls[i].GetAttributeValue("href", null));
+                        string url = urls[i].GetAttributeValue("href", "");
+                        int pos = url.LastIndexOf('/');
+                        int id = Convert.ToInt32(url.Substring(pos + 1, url.IndexOf('-') - pos - 1));
+                        Movie toAdd = new Movie(name, url);
+                        toAdd.Id = id;
                         Movies.Add(toAdd);
                     }
                     catch (Exception exc)
@@ -209,24 +222,35 @@ namespace parser.ViewModels
                     {
                         doc = web.Load(Movies[i].Link);
                     });
-                    var ukrName = doc.DocumentNode.SelectSingleNode("//div[@id='mc-right']/h1").InnerText;
-                    var originalName = doc.DocumentNode.SelectSingleNode("//div[@id='mc-right']/span").InnerText;
-                    Movies[i].Name = $"{ukrName} - {originalName}"; //?????
+                    Movies[i].UkrName = doc.DocumentNode.SelectSingleNode("//div[@id='mc-right']/h1")?.InnerText ?? "";
+                    Movies[i].OriginalName = doc.DocumentNode.SelectSingleNode("//div[@id='mc-right']/span")?.InnerText ?? "";
 
                     var info = doc.DocumentNode.SelectNodes("//div[@class='mi-desc']");
-                    Movies[i].Director = info[0].InnerText;
-                    Movies[i].Actors = info[1].InnerText;
-                    Movies[i].Companies = info[2].InnerText;
-                    Movies[i].Genre = info[3].InnerText;
-                    Movies[i].Countries = info[4].InnerText;
-                    Movies[i].Year = Convert.ToInt32(info[5].InnerText);
-                    Movies[i].Length = info[6].InnerText;
+                    Movies[i].Director = info[0]?.InnerText ?? "";
+                    Movies[i].Actors = info[1]?.InnerText ?? "";
+                    Movies[i].Companies = info[2]?.InnerText ?? "";
+                    Movies[i].Genre = info[3]?.InnerText ?? "";
+                    Movies[i].Countries = info[4]?.InnerText ?? "";
+                    Movies[i].Year = Convert.ToInt32(info[5]?.InnerText ?? "0");
+                    Movies[i].Length = info[6]?.InnerText ?? "00:00:00";
 
-                    Movies[i].ImdbLink = "DEL";
-                    Movies[i].Poster = doc.DocumentNode.SelectSingleNode("//div[@class='m-img']/img").Attributes["src"].Value;
-                    var story = doc.DocumentNode.SelectSingleNode("//div[@class='m-desc full-text clearfix']").InnerHtml;
+                    Movies[i].ImdbRate = Convert.ToDouble(doc.DocumentNode.SelectSingleNode("//div[@class='mr-item-rate']")?.InnerText?.Trim()?.Replace('.',',') ?? "0");
+                    Movies[i].Poster = doc.DocumentNode.SelectSingleNode("//div[@class='m-img']/img")?.Attributes["src"]?.Value ?? "no-poster.jpg";
+                    var story = doc.DocumentNode.SelectSingleNode("//div[@class='m-desc full-text clearfix']")?.InnerHtml ?? "<div class=\"m-info\">";
                     Movies[i].Story = HtmlHelper.StripHtml(story.Substring(0, story.IndexOf("<div class=\"m-info\">"))).Replace("\t", "").Replace("\n","").Replace("  ", " ");
-                   
+
+                    //Getting comment
+
+                    int cstart = 1;
+                    while(true)
+                    {
+                        using (var httpClient = new HttpClient())
+                        {
+                            var url = $"https://uafilm.tv/engine/ajax/comments.php?cstart={cstart}&news_id={Movies[i].Id}&skin=uafilm&massact=disable";
+                            var json = await httpClient.GetStringAsync(url);
+                        }
+                    }
+
                     ++Progress;
                     Thread.Sleep(SleepTime);
                 }
@@ -235,6 +259,16 @@ namespace parser.ViewModels
                     ++ErrorsCount;
                     System.Windows.MessageBox.Show(exc.Message + "\n" + Movies[i].Name + "\n" + Movies[i].Link, "Виникла помилка", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+            }
+        }
+
+        private void ShowMovie(object parameter)
+        {
+            if (parameter != null)
+            {
+                MovieWindow tw = new MovieWindow(parameter as Movie);
+                tw.Show();
+                tw.Owner = ((MainWindow)System.Windows.Application.Current.MainWindow);
             }
         }
     }

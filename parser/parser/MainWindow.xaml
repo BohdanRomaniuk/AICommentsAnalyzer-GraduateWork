@@ -168,68 +168,113 @@
                             </GroupBox>
                         </Grid>
                         <Grid Grid.Row="1">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="0.03*"></ColumnDefinition>
-                                    <ColumnDefinition Width="0.2*"></ColumnDefinition>
-                                    <ColumnDefinition Width="0.04*"></ColumnDefinition>
-                                    <ColumnDefinition Width="0.04*"></ColumnDefinition>
-                                    <ColumnDefinition Width="0.04*"></ColumnDefinition>
-                                    <ColumnDefinition Width="0.04*"></ColumnDefinition>
-                                    <ColumnDefinition Width="0.08*"></ColumnDefinition>
-                                    <ColumnDefinition Width="0.1*"></ColumnDefinition>
-                                    <ColumnDefinition Width="0.15*"></ColumnDefinition>
-                                    <ColumnDefinition Width="0.15*"></ColumnDefinition>
-                                    <ColumnDefinition Width="0.15*"></ColumnDefinition>
-                                    <ColumnDefinition Width="0.15*"></ColumnDefinition>
-                                </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Name="moviewidth1"></Border>
-                                <Border Grid.Column="1" Name="moviewidth2"></Border>
-                                <Border Grid.Column="2" Name="moviewidth3"></Border>
-                                <Border Grid.Column="3" Name="moviewidth4"></Border>
-                                <Border Grid.Column="4" Name="moviewidth5"></Border>
-                                <Border Grid.Column="5" Name="moviewidth6"></Border>
-                                <Border Grid.Column="6" Name="moviewidth7"></Border>
-                                <Border Grid.Column="7" Name="moviewidth8"></Border>
-                                <Border Grid.Column="8" Name="moviewidth9"></Border>
-                                <Border Grid.Column="9" Name="moviewidth10"></Border>
-                                <Border Grid.Column="10" Name="moviewidth11"></Border>
-                                <Border Grid.Column="11" Name="moviewidth12"></Border>
+                            <Grid Visibility="{Binding IsMoviesListVisible}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="0.03*"></ColumnDefinition>
+                                        <ColumnDefinition Width="0.2*"></ColumnDefinition>
+                                        <ColumnDefinition Width="0.04*"></ColumnDefinition>
+                                        <ColumnDefinition Width="0.04*"></ColumnDefinition>
+                                        <ColumnDefinition Width="0.04*"></ColumnDefinition>
+                                        <ColumnDefinition Width="0.04*"></ColumnDefinition>
+                                        <ColumnDefinition Width="0.08*"></ColumnDefinition>
+                                        <ColumnDefinition Width="0.1*"></ColumnDefinition>
+                                        <ColumnDefinition Width="0.15*"></ColumnDefinition>
+                                        <ColumnDefinition Width="0.15*"></ColumnDefinition>
+                                        <ColumnDefinition Width="0.15*"></ColumnDefinition>
+                                        <ColumnDefinition Width="0.15*"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Name="moviewidth1"></Border>
+                                    <Border Grid.Column="1" Name="moviewidth2"></Border>
+                                    <Border Grid.Column="2" Name="moviewidth3"></Border>
+                                    <Border Grid.Column="3" Name="moviewidth4"></Border>
+                                    <Border Grid.Column="4" Name="moviewidth5"></Border>
+                                    <Border Grid.Column="5" Name="moviewidth6"></Border>
+                                    <Border Grid.Column="6" Name="moviewidth7"></Border>
+                                    <Border Grid.Column="7" Name="moviewidth8"></Border>
+                                    <Border Grid.Column="8" Name="moviewidth9"></Border>
+                                    <Border Grid.Column="9" Name="moviewidth10"></Border>
+                                    <Border Grid.Column="10" Name="moviewidth11"></Border>
+                                    <Border Grid.Column="11" Name="moviewidth12"></Border>
+                                </Grid>
+                                <ListView x:Name="movies" HorizontalAlignment="Left" Margin="3" ItemsSource="{Binding Path=Movies, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="trimmed">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="SelectionChanged">
+                                            <i:InvokeCommandAction Command="{Binding ShowMovieCommand}" CommandParameter="{Binding SelectedItem, ElementName=movies}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="Height" Value="18" />
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                    <ListView.Resources>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                                            <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Text }" />
+                                        </Style>
+                                    </ListView.Resources>
+                                    <ListView.View>
+                                        <GridView>
+                                            <GridViewColumn Header="№" Width="{Binding ElementName=moviewidth1, Path=ActualWidth}" DisplayMemberBinding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListViewItem}} , Converter={StaticResource ListItemIdConverter}}" />
+                                            <GridViewColumn Header="Назва" Width="{Binding ElementName=moviewidth2, Path=ActualWidth}" DisplayMemberBinding="{Binding Name}" />
+                                            <GridViewColumn Header="Рік" Width="{Binding ElementName=moviewidth3, Path=ActualWidth}" DisplayMemberBinding="{Binding Year}" />
+                                            <GridViewColumn Header="Жанр" Width="{Binding ElementName=moviewidth4, Path=ActualWidth}" DisplayMemberBinding="{Binding Genre}" />
+                                            <GridViewColumn Header="Країна" Width="{Binding ElementName=moviewidth5, Path=ActualWidth}" DisplayMemberBinding="{Binding Countries}" />
+                                            <GridViewColumn Header="imdb" Width="{Binding ElementName=moviewidth6, Path=ActualWidth}" DisplayMemberBinding="{Binding ImdbRate}" />
+                                            <GridViewColumn Header="Режисер" Width="{Binding ElementName=moviewidth7, Path=ActualWidth}" DisplayMemberBinding="{Binding Director}" />
+                                            <GridViewColumn Header="Актори" Width="{Binding ElementName=moviewidth8, Path=ActualWidth}" DisplayMemberBinding="{Binding Actors}" />
+                                            <GridViewColumn Header="Кіностудії" Width="{Binding ElementName=moviewidth9, Path=ActualWidth}" DisplayMemberBinding="{Binding Companies}" />
+                                            <GridViewColumn Header="Сюжет" Width="{Binding ElementName=moviewidth10, Path=ActualWidth}" DisplayMemberBinding="{Binding Story}" />
+                                            <GridViewColumn Header="Постер" Width="{Binding ElementName=moviewidth11, Path=ActualWidth}" DisplayMemberBinding="{Binding Poster}" />
+                                            <GridViewColumn Header="Файл" Width="{Binding ElementName=moviewidth12, Path=ActualWidth}" DisplayMemberBinding="{Binding PosterFileName}" />
+                                        </GridView>
+                                    </ListView.View>
+                                </ListView>
                             </Grid>
-                            <ListView x:Name="movies" Visibility="{Binding IsMoviesListVisible}" HorizontalAlignment="Left" Margin="3" ItemsSource="{Binding Path=Movies, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="trimmed">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="SelectionChanged">
-                                        <i:InvokeCommandAction Command="{Binding ShowMovieCommand}" CommandParameter="{Binding SelectedItem, ElementName=movies}"/>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                                <ListView.ItemContainerStyle>
-                                    <Style TargetType="ListViewItem">
-                                        <Setter Property="Height" Value="18" />
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                                <ListView.Resources>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                                        <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Text }" />
-                                    </Style>
-                                </ListView.Resources>
-                                <ListView.View>
-                                    <GridView>
-                                        <GridViewColumn Header="№" Width="{Binding ElementName=moviewidth1, Path=ActualWidth}" DisplayMemberBinding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListViewItem}} , Converter={StaticResource ListItemIdConverter}}" />
-                                        <GridViewColumn Header="Назва" Width="{Binding ElementName=moviewidth2, Path=ActualWidth}" DisplayMemberBinding="{Binding Name}" />
-                                        <GridViewColumn Header="Рік" Width="{Binding ElementName=moviewidth3, Path=ActualWidth}" DisplayMemberBinding="{Binding Year}" />
-                                        <GridViewColumn Header="Жанр" Width="{Binding ElementName=moviewidth4, Path=ActualWidth}" DisplayMemberBinding="{Binding Genre}" />
-                                        <GridViewColumn Header="Країна" Width="{Binding ElementName=moviewidth5, Path=ActualWidth}" DisplayMemberBinding="{Binding Countries}" />
-                                        <GridViewColumn Header="imdb" Width="{Binding ElementName=moviewidth6, Path=ActualWidth}" DisplayMemberBinding="{Binding ImdbLink}" />
-                                        <GridViewColumn Header="Режисер" Width="{Binding ElementName=moviewidth7, Path=ActualWidth}" DisplayMemberBinding="{Binding Director}" />
-                                        <GridViewColumn Header="Актори" Width="{Binding ElementName=moviewidth8, Path=ActualWidth}" DisplayMemberBinding="{Binding Actors}" />
-                                        <GridViewColumn Header="Кіностудії" Width="{Binding ElementName=moviewidth9, Path=ActualWidth}" DisplayMemberBinding="{Binding Companies}" />
-                                        <GridViewColumn Header="Сюжет" Width="{Binding ElementName=moviewidth10, Path=ActualWidth}" DisplayMemberBinding="{Binding Story}" />
-                                        <GridViewColumn Header="Постер" Width="{Binding ElementName=moviewidth11, Path=ActualWidth}" DisplayMemberBinding="{Binding Poster}" />
-                                        <GridViewColumn Header="Файл" Width="{Binding ElementName=moviewidth12, Path=ActualWidth}" DisplayMemberBinding="{Binding PosterFileName}" />
-                                    </GridView>
-                                </ListView.View>
-                            </ListView>
+                            <Grid Visibility="{Binding IsCommentsListVisible}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="0.03*"></ColumnDefinition>
+                                        <ColumnDefinition Width="0.04*"></ColumnDefinition>
+                                        <ColumnDefinition Width="0.2*"></ColumnDefinition>
+                                        <ColumnDefinition Width="0.04*"></ColumnDefinition>
+                                        <ColumnDefinition Width="0.04*"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Name="comemntwidth1"></Border>
+                                    <Border Grid.Column="1" Name="comemntwidth2"></Border>
+                                    <Border Grid.Column="2" Name="comemntwidth3"></Border>
+                                    <Border Grid.Column="3" Name="comemntwidth4"></Border>
+                                    <Border Grid.Column="4" Name="comemntwidth5"></Border>
+                                </Grid>
+                                <ListView x:Name="comments" HorizontalAlignment="Left" Margin="3" ItemsSource="{Binding Path=Comments, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="trimmed">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="SelectionChanged">
+                                            <i:InvokeCommandAction Command="{Binding ShowComemntCommand}" CommandParameter="{Binding SelectedItem, ElementName=comments}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="Height" Value="18" />
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                    <ListView.Resources>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                                            <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Text }" />
+                                        </Style>
+                                    </ListView.Resources>
+                                    <ListView.View>
+                                        <GridView>
+                                            <GridViewColumn Header="№" Width="{Binding ElementName=comemntwidth1, Path=ActualWidth}" DisplayMemberBinding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListViewItem}} , Converter={StaticResource ListItemIdConverter}}" />
+                                            <GridViewColumn Header="Автор" Width="{Binding ElementName=comemntwidth2, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentAuthor}" />
+                                            <GridViewColumn Header="Текст" Width="{Binding ElementName=comemntwidth3, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentText}" />
+                                            <GridViewColumn Header="Дата" Width="{Binding ElementName=comemntwidth4, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentDate}" />
+                                            <GridViewColumn Header="Тональність" Width="{Binding ElementName=comemntwidth5, Path=ActualWidth}" DisplayMemberBinding="{Binding Sentiment}" />
+                                        </GridView>
+                                    </ListView.View>
+                                </ListView>
+                            </Grid>
                         </Grid>
                     </Grid>
                 </TabItem>
