@@ -10,7 +10,12 @@
         Title="Класифікація коментарів" Height="700" Width="1200">
     <Window.Resources>
         <converters:ListItemIdConverter x:Key="ListItemIdConverter"/>
+        <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
     </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Key="D1" Command="{Binding Models[0].MarkAsPositiveCommand}" CommandParameter="{Binding SelectedItem, ElementName=comments}"/>
+        <KeyBinding Key="D2" Command="{Binding Models[0].MarkAsNegativeCommand}" CommandParameter="{Binding SelectedItem, ElementName=comments}"/>
+    </Window.InputBindings>
     <DockPanel>
         <Menu DockPanel.Dock="Top" BorderBrush="Black">
             <MenuItem Header="Файл" Command="">
@@ -43,36 +48,21 @@
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.5*"/>
+                                <ColumnDefinition Width="0.4*"/>
                                 <ColumnDefinition Width="0.3*"/>
                                 <ColumnDefinition Width="0.5*"/>
                                 <ColumnDefinition Width="0.8*"/>
                             </Grid.ColumnDefinitions>
-                            <GroupBox Header="Користувач" Grid.Column="0" Margin="3,0,3,3">
+                            <GroupBox Header="Функціональність" Grid.Column="0" Margin="3,0,3,3">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Label Content="Ім'я користувача"/>
-                                    <TextBox Text="" Grid.Column="1" Margin="3"/>
-                                    <Label Content="Пароль" Grid.Row="1"/>
-                                    <PasswordBox Name="UserPasswordForum" Grid.Row="1" Grid.Column="1" Margin="3"/>
-                                    <Label Content=""  Grid.Row="2"/>
-                                    <DockPanel Grid.Row="2" Grid.Column="1">
-                                        <CheckBox Content="Режим фільмів" Grid.Row="2" DockPanel.Dock="Left" VerticalAlignment="Center" IsChecked="{Binding IsMoviesMode}"/>
-                                        <Grid DockPanel.Dock="Right" HorizontalAlignment="Right">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                        </Grid>
-                                    </DockPanel>
+                                    <Label Content="Режим роботи:" Margin="3"/>
+                                    <RadioButton Content="перегляд фільмів та коментарів" IsChecked="{Binding IsMoviesMode}" Grid.Row="1" Margin="3"/>
+                                    <RadioButton Content="перегляд тільки коментарів" IsChecked="{Binding IsMoviesMode, Converter={StaticResource InverseBoolConverter}}" Grid.Row="2" Margin="3"/>
                                 </Grid>
                             </GroupBox>
                             <GroupBox Header="Статистика" Grid.Column="1" Margin="3,0,3,3">
@@ -87,9 +77,9 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Label Content="Усього фільмів:"/>
-                                    <Label FontWeight="Bold" Content="" Grid.Column="1"/>
+                                    <Label FontWeight="Bold" Content="{Binding Movies.Count}" Grid.Column="1"/>
                                     <Label Content="Усього коментарів:" Grid.Row="1"/>
-                                    <Label FontWeight="Bold" Content="" Grid.Row="1" Grid.Column="1"/>
+                                    <Label FontWeight="Bold" Content="{Binding Comments.Count}" Grid.Row="1" Grid.Column="1"/>
                                     <Label Content="Відображено:" Grid.Row="2"/>
                                     <Label FontWeight="Bold" Foreground="Green" Content="" Grid.Row="2" Grid.Column="1"/>
                                 </Grid>
@@ -123,12 +113,12 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Button Content="Оновити інформацію" Command="" Margin="3" Foreground="Red"/>
+                                        <Button Content="Оновити інформацію" Command="" Margin="3" IsEnabled="False" Foreground="Red"/>
                                         <Button Content="Отримати інформацію" Command="{Binding GetAllInfoCommand}" Grid.Column="1" Margin="3"/>
                                     </Grid>
                                 </Grid>
                             </GroupBox>
-                            <GroupBox Header="Тема" Grid.Column="3" Margin="3,0,3,3">
+                            <GroupBox Header="Керування" Grid.Column="3" Margin="3,0,3,3">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -155,14 +145,16 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Button Content="Відкрити з bin" Command="{Binding OpenFromBinaryCommand}" Margin="3"/>
-                                        <Button Content="Розпарсити фільми" Command="{Binding OpenParsingMovieWindowCommand}" Margin="3" Grid.Column="1"/>
-                                        <Button Content="Розпарсити постери" Command="" Margin="3" Grid.Column="2"/>
-                                        <Button Content="Кешувати зображення" Command="" Margin="3" Grid.Column="3"/>
-                                        <Button Content="Зберегти в bin" Command="{Binding SaveToBinaryCommand}" Margin="3" Grid.Row="2"/>
-                                        <Button Content="Отримати BBCode" Command="" Margin="3" Grid.Column="1" Grid.Row="2"/>
-                                        <Button Content="Зберегти постери" Command="" Margin="3" Grid.Row="2" Grid.Column="2" Foreground="Green"/>
-                                        <Button Content="Зберегти торренти" Command="" Margin="3" Grid.Row="1" Grid.Column="3"/>
+                                        <Button Content="Розпарсити фільми" Command="{Binding OpenParsingMovieWindowCommand}" Margin="3"/>
+                                        <Button Content="???" Command="" Margin="3" Grid.Row="2"/>
+                                        <Button Content="Відкрити з bin" Command="{Binding OpenFromBinaryCommand}" Margin="3"  Grid.Column="1"/>
+                                        <Button Content="Зберегти в bin" Command="{Binding SaveToBinaryCommand}" Margin="3" Grid.Row="2" Grid.Column="1"/>
+
+                                        <Button Content="1" Command="" Margin="3" Grid.Column="2"/>
+                                        <Button Content="2" Command="" Margin="3" Grid.Row="2" Grid.Column="2"/>
+
+                                        <Button Content="3" Command="" Margin="3" Grid.Column="3"/>
+                                        <Button Content="4" Command="" Margin="3" Grid.Row="1" Grid.Column="3"/>
                                     </Grid>
                                 </Grid>
                             </GroupBox>
@@ -256,6 +248,7 @@
                                     <ListView.ItemContainerStyle>
                                         <Style TargetType="ListViewItem">
                                             <Setter Property="Height" Value="18" />
+                                            <Setter Property="Background" Value="{Binding Brush}"/>
                                         </Style>
                                     </ListView.ItemContainerStyle>
                                     <ListView.Resources>
@@ -267,7 +260,7 @@
                                     <ListView.View>
                                         <GridView>
                                             <GridViewColumn Header="№" Width="{Binding ElementName=comemntwidth1, Path=ActualWidth}" DisplayMemberBinding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListViewItem}} , Converter={StaticResource ListItemIdConverter}}" />
-                                            <GridViewColumn Header="Автор" Width="{Binding ElementName=comemntwidth2, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentAuthor}" />
+                                            <GridViewColumn Header="Автор" Width="{Binding ElementName=comemntwidth2, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentAuthor}"/>
                                             <GridViewColumn Header="Текст" Width="{Binding ElementName=comemntwidth3, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentText}" />
                                             <GridViewColumn Header="Дата" Width="{Binding ElementName=comemntwidth4, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentDate}" />
                                             <GridViewColumn Header="Тональність" Width="{Binding ElementName=comemntwidth5, Path=ActualWidth}" DisplayMemberBinding="{Binding Sentiment}" />

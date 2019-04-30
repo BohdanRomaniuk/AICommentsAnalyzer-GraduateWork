@@ -67,8 +67,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\InverseBoolConverter.cs" />
     <Compile Include="Converters\ListItemIdConverter.cs" />
     <Compile Include="Helpers\Command.cs" />
+    <Compile Include="Helpers\DateTimeHelper.cs" />
     <Compile Include="Helpers\HtmlHelper.cs" />
     <Compile Include="Models\Country.cs" />
     <Compile Include="Models\Genre.cs" />

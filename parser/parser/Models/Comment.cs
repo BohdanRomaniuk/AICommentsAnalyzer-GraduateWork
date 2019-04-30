@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Media;
 
 namespace parser.Models
 {
@@ -46,8 +47,11 @@ namespace parser.Models
             {
                 sentiment = value;
                 OnPropertyChanged(nameof(Sentiment));
+                OnPropertyChanged(nameof(Brush));
             }
         }
+
+        public SolidColorBrush Brush => new SolidColorBrush(GetBrushColor());
 
         public Comment()
         {
@@ -59,6 +63,19 @@ namespace parser.Models
             CommentText = _text;
             CommentDate = _date;
             Sentiment = _sentiment;
+        }
+
+        private Color GetBrushColor()
+        {
+            switch(Sentiment)
+            {
+                case 1:
+                    return Color.FromRgb(196, 255, 196);
+                case 0:
+                    return Color.FromRgb(255, 196, 196);
+                default:
+                    return Color.FromRgb(255, 255, 196);
+            }
         }
 
         [field: NonSerialized]

@@ -11,6 +11,10 @@
     <Window.Resources>
         <converters:ListItemIdConverter x:Key="ListItemIdConverter"/>
     </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Key="D1" Command="{Binding MarkAsPositiveCommand}" CommandParameter="{Binding SelectedItem, ElementName=comments}"/>
+        <KeyBinding Key="D2" Command="{Binding MarkAsNegativeCommand}" CommandParameter="{Binding SelectedItem, ElementName=comments}"/>
+    </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="3*"/>
@@ -112,6 +116,7 @@
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="Height" Value="18" />
+                            <Setter Property="Background" Value="{Binding Brush}" />
                         </Style>
                     </ListView.ItemContainerStyle>
                     <ListView.Resources>

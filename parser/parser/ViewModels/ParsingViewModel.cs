@@ -6,10 +6,8 @@ using parser.Models.Json;
 using parser.Windows;
 using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Net.Http;
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
@@ -147,6 +145,9 @@ namespace parser.ViewModels
         public ICommand OpenFromBinaryCommand { get; }
         public ICommand SaveToBinaryCommand { get; }
 
+        public ICommand MarkAsPositiveCommand { get; }
+        public ICommand MarkAsNegativeCommand { get; }
+
         public ParsingViewModel()
         {
             IsMoviesMode = true;
@@ -161,6 +162,18 @@ namespace parser.ViewModels
             ShowMovieCommand = new Command(ShowMovie);
             OpenFromBinaryCommand = new Command(OpenFromBinary);
             SaveToBinaryCommand = new Command(SaveToBinary);
+            MarkAsPositiveCommand = new Command(MarkAsPositive);
+            MarkAsNegativeCommand = new Command(MarkAsNegative);
+        }
+
+        private void MarkAsPositive(object parameter)
+        {
+            (parameter as Comment).Sentiment = 1;
+        }
+
+        private void MarkAsNegative(object parameter)
+        {
+            (parameter as Comment).Sentiment = 0;
         }
 
         private async void GetAllInfo(object parameter)

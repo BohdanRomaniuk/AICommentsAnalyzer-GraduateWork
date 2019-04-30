@@ -42,6 +42,9 @@ namespace parser.ViewModels
         public ICommand CopyPosterUrlCommand { get; private set; }
         public ICommand SavePosterAsCommand { get; private set; }
 
+        public ICommand MarkAsPositiveCommand { get; }
+        public ICommand MarkAsNegativeCommand { get; }
+
         public MovieWindowViewModel(Movie _currentMovie, bool _offlineMode = false, string _postersLocation = "")
         {
             try
@@ -63,8 +66,12 @@ namespace parser.ViewModels
             {
                 MessageBox.Show(exc.Message + "\n" + CurrentMovie.Name + "\n" + CurrentMovie.Link, "Виникла помилка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+
             CopyPosterUrlCommand = new Command(CopyPosterUrl);
             SavePosterAsCommand = new Command(SavePosterAs);
+
+            MarkAsPositiveCommand = new Command(MarkAsPositive);
+            MarkAsNegativeCommand = new Command(MarkAsNegative);
         }
 
         public void CopyPosterUrl(object obj)
@@ -94,6 +101,16 @@ namespace parser.ViewModels
                     MessageBox.Show(exc.Message + "\n" + CurrentMovie.Name + "\n" + CurrentMovie.Link, "Виникла помилка", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+        }
+
+        private void MarkAsPositive(object parameter)
+        {
+            (parameter as Comment).Sentiment = 1;
+        }
+
+        private void MarkAsNegative(object parameter)
+        {
+            (parameter as Comment).Sentiment = 0;
         }
     }
 }
