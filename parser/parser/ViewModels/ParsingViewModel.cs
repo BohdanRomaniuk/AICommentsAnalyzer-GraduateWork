@@ -7,8 +7,10 @@ using parser.Windows;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -142,6 +144,9 @@ namespace parser.ViewModels
         public ICommand StartParsingCommand { get; }
         public ICommand ShowMovieCommand { get; }
 
+        public ICommand OpenFromBinaryCommand { get; }
+        public ICommand SaveToBinaryCommand { get; }
+
         public ParsingViewModel()
         {
             IsMoviesMode = true;
@@ -154,6 +159,8 @@ namespace parser.ViewModels
             OpenParsingMovieWindowCommand = new Command(OpenParsingMovieWindow);
             StartParsingCommand = new Command(StartParsing);
             ShowMovieCommand = new Command(ShowMovie);
+            OpenFromBinaryCommand = new Command(OpenFromBinary);
+            SaveToBinaryCommand = new Command(SaveToBinary);
         }
 
         private async void GetAllInfo(object parameter)
@@ -281,6 +288,45 @@ namespace parser.ViewModels
                 MovieWindow tw = new MovieWindow(parameter as Movie);
                 tw.Show();
                 tw.Owner = ((MainWindow)System.Windows.Application.Current.MainWindow);
+            }
+        }
+
+        private void OpenFromBinary(object obj)
+        {
+            Movies.Clear();
+            Comments.Clear();
+            Microsoft.Win32.OpenFileDialog ofd = new Microsoft.Win32.OpenFileDialog();
+            ofd.Filter = "bin(*.bin)|*.bin";
+            if (ofd.ShowDialog() ?? true)
+            {
+                using (Stream reader = File.Open(ofd.FileName, FileMode.Open))
+                {
+                    BinaryFormatter ser = new BinaryFormatter();
+                    Movies = (ObservableCollection<Movie>)ser.Deserialize(reader);
+                    foreach(Movie mv in Movies)
+                    {
+                        foreach(Comment cm in mv.Comments)
+                        {
+                            Comments.Add(cm);
+                        }
+                    }
+                    OnPropertyChanged(nameof(Movies));
+                    OnPropertyChanged(nameof(Comments));
+                }
+            }
+        }
+
+        private void SaveToBinary(object obj)
+        {
+            Microsoft.Win32.SaveFileDialog svd = new Microsoft.Win32.SaveFileDialog();
+            svd.Filter = "bin(*.bin)|*.bin";
+            if (svd.ShowDialog() ?? true)
+            {
+                using (FileStream fileStr = new FileStream(svd.FileName, FileMode.Create))
+                {
+                    BinaryFormatter binFormater = new BinaryFormatter();
+                    binFormater.Serialize(fileStr, Movies);
+                }
             }
         }
     }
