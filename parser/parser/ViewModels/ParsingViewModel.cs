@@ -148,6 +148,8 @@ namespace parser.ViewModels
         public ICommand MarkAsPositiveCommand { get; }
         public ICommand MarkAsNegativeCommand { get; }
 
+        public ICommand SaveCommentsCommand { get; }
+
         public ParsingViewModel()
         {
             IsMoviesMode = true;
@@ -164,6 +166,7 @@ namespace parser.ViewModels
             SaveToBinaryCommand = new Command(SaveToBinary);
             MarkAsPositiveCommand = new Command(MarkAsPositive);
             MarkAsNegativeCommand = new Command(MarkAsNegative);
+            SaveCommentsCommand = new Command(SaveComments);
         }
 
         private void MarkAsPositive(object parameter)
@@ -304,7 +307,7 @@ namespace parser.ViewModels
             }
         }
 
-        private void OpenFromBinary(object obj)
+        private void OpenFromBinary(object parameter)
         {
             Movies.Clear();
             Comments.Clear();
@@ -329,7 +332,7 @@ namespace parser.ViewModels
             }
         }
 
-        private void SaveToBinary(object obj)
+        private void SaveToBinary(object parameter)
         {
             Microsoft.Win32.SaveFileDialog svd = new Microsoft.Win32.SaveFileDialog();
             svd.Filter = "bin(*.bin)|*.bin";
@@ -339,6 +342,22 @@ namespace parser.ViewModels
                 {
                     BinaryFormatter binFormater = new BinaryFormatter();
                     binFormater.Serialize(fileStr, Movies);
+                }
+            }
+        }
+
+        private async void SaveComments(object parameter)
+        {
+            Microsoft.Win32.SaveFileDialog svd = new Microsoft.Win32.SaveFileDialog();
+            svd.Filter = "csv(*.csv)|*.csv";
+            if (svd.ShowDialog() ?? true)
+            {
+                using (StreamWriter fileStr = new StreamWriter(new FileStream(svd.FileName, FileMode.Create)))
+                {
+                    foreach(var comment in Comments)
+                    {
+                        await fileStr.WriteLineAsync($"{comment.CommentText},{comment.Sentiment}");
+                    }
                 }
             }
         }

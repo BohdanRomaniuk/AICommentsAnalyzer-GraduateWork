@@ -3,6 +3,7 @@
     public class CommentResponse
     {
         public string navigation { get; set; }
-        public string comments { get; set; }//html
+        //Html code itself
+        public string comments { get; set; }
     }
 }

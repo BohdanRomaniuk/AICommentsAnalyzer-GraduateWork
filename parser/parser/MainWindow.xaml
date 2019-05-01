@@ -150,8 +150,8 @@
                                         <Button Content="Відкрити з bin" Command="{Binding OpenFromBinaryCommand}" Margin="3"  Grid.Column="1"/>
                                         <Button Content="Зберегти в bin" Command="{Binding SaveToBinaryCommand}" Margin="3" Grid.Row="2" Grid.Column="1"/>
 
-                                        <Button Content="1" Command="" Margin="3" Grid.Column="2"/>
-                                        <Button Content="2" Command="" Margin="3" Grid.Row="2" Grid.Column="2"/>
+                                        <Button Content="Зберегти коментарі" Command="{Binding SaveCommentsCommand}" Margin="3" Grid.Column="2"/>
+                                        <Button Content="2" Command="{Binding SaveToTsvCommand}" Margin="3" Grid.Row="2" Grid.Column="2"/>
 
                                         <Button Content="3" Command="" Margin="3" Grid.Column="3"/>
                                         <Button Content="4" Command="" Margin="3" Grid.Row="1" Grid.Column="3"/>
