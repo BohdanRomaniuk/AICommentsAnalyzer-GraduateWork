@@ -3,14 +3,14 @@ using System.Windows;
 
 namespace parser.Windows
 {
-    public partial class ParsingPagesWindow : Window
+    public partial class PagesWindow : Window
     {
-        public ParsingPagesWindow()
+        public PagesWindow()
         {
             InitializeComponent();
         }
 
-        public ParsingPagesWindow(ParsingViewModel context)
+        public PagesWindow(ParsingViewModel context)
         {
             InitializeComponent();
             DataContext = context;

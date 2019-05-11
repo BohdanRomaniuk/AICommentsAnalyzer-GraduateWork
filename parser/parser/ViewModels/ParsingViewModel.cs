@@ -7,6 +7,7 @@ using parser.Windows;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
@@ -22,6 +23,8 @@ namespace parser.ViewModels
         private string url;
         private int fromPage;
         private int toPage;
+        private bool isSavingMode;
+        private string savingFormat;
 
         public bool IsMoviesMode
         {
@@ -102,25 +105,35 @@ namespace parser.ViewModels
 
         //Parsing
         #region parsing
-        private int fromMovie;
-        private int toMovie;
+        private string title;
+        private int from;
+        private int to;
         private int sleepTime;
-        public int FromMovie
+        public string Title
         {
-            get => fromMovie;
+            get => title;
             set
             {
-                fromMovie = value;
-                OnPropertyChanged(nameof(FromMovie));
+                title = value;
+                OnPropertyChanged(nameof(Title));
             }
         }
-        public int ToMovie
+        public int From
         {
-            get => toMovie;
+            get => from;
             set
             {
-                toMovie = value;
-                OnPropertyChanged(nameof(ToMovie));
+                from = value;
+                OnPropertyChanged(nameof(From));
+            }
+        }
+        public int To
+        {
+            get => to;
+            set
+            {
+                to = value;
+                OnPropertyChanged(nameof(To));
             }
         }
         public int SleepTime
@@ -132,6 +145,28 @@ namespace parser.ViewModels
                 OnPropertyChanged(nameof(SleepTime));
             }
         }
+        public bool IsSavingMode
+        {
+            get => isSavingMode;
+            set
+            {
+                isSavingMode = value;
+                OnPropertyChanged(nameof(IsSavingMode));
+                OnPropertyChanged(nameof(IsSavingFormatVisible));
+                OnPropertyChanged(nameof(IsSleepTimeVisible));
+            }
+        }
+        public Visibility IsSavingFormatVisible => IsSavingMode ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility IsSleepTimeVisible => !IsSavingMode ? Visibility.Visible : Visibility.Collapsed;
+        public string SavingFormat
+        {
+            get => savingFormat;
+            set
+            {
+                savingFormat = value;
+                OnPropertyChanged(nameof(SavingFormat));
+            }
+        }
         #endregion
 
         public ObservableCollection<Movie> Movies { get; set; }
@@ -139,7 +174,7 @@ namespace parser.ViewModels
 
         public ICommand GetAllInfoCommand { get; }
         public ICommand OpenParsingMovieWindowCommand { get; }
-        public ICommand StartParsingCommand { get; }
+        public ICommand StartCommand { get; private set; }
         public ICommand ShowMovieCommand { get; }
 
         public ICommand OpenFromBinaryCommand { get; }
@@ -148,7 +183,7 @@ namespace parser.ViewModels
         public ICommand MarkAsPositiveCommand { get; }
         public ICommand MarkAsNegativeCommand { get; }
 
-        public ICommand SaveCommentsCommand { get; }
+        public ICommand OpenSaveCommentsWindowCommand { get; }
 
         public ParsingViewModel()
         {
@@ -156,17 +191,18 @@ namespace parser.ViewModels
             Url = @"https://uafilm.tv/films/";
             FromPage = 1;
             ToPage = 1;
+            IsSavingMode = false;
+            SavingFormat = "*.csv";
             Movies = new ObservableCollection<Movie>();
             Comments = new ObservableCollection<Comment>();
             GetAllInfoCommand = new Command(GetAllInfo);
             OpenParsingMovieWindowCommand = new Command(OpenParsingMovieWindow);
-            StartParsingCommand = new Command(StartParsing);
             ShowMovieCommand = new Command(ShowMovie);
             OpenFromBinaryCommand = new Command(OpenFromBinary);
             SaveToBinaryCommand = new Command(SaveToBinary);
             MarkAsPositiveCommand = new Command(MarkAsPositive);
             MarkAsNegativeCommand = new Command(MarkAsNegative);
-            SaveCommentsCommand = new Command(SaveComments);
+            OpenSaveCommentsWindowCommand = new Command(OpenSaveCommentsWindow);
         }
 
         private void MarkAsPositive(object parameter)
@@ -219,7 +255,10 @@ namespace parser.ViewModels
         {
             if (Movies.Count != 0)
             {
-                ParsingPagesWindow ppw = new ParsingPagesWindow(this);
+                IsSavingMode = false;
+                Title = "Парсинг фільмів";
+                StartCommand = new Command(StartParsing);
+                PagesWindow ppw = new PagesWindow(this);
                 ppw.Show();
                 ppw.Owner = ((MainWindow)System.Windows.Application.Current.MainWindow); ;
             }
@@ -229,9 +268,9 @@ namespace parser.ViewModels
         {
             ErrorsCount = 0;
             Progress = 0;
-            Maximum = ToMovie - FromMovie + 1;
-            int fromIndex = Movies.Count - FromMovie;
-            int toIndex = Movies.Count - ToMovie;
+            Maximum = To - From + 1;
+            int fromIndex = Movies.Count - From;
+            int toIndex = Movies.Count - To;
             HtmlWeb web = new HtmlWeb();
             HtmlDocument doc = new HtmlDocument();
             for (int i = fromIndex; i >= toIndex; --i)
@@ -241,44 +280,57 @@ namespace parser.ViewModels
                     await Task.Run(() =>
                     {
                         doc = web.Load(Movies[i].Link);
+
+                        Movies[i].UkrName = doc.DocumentNode.SelectSingleNode("//div[@id='mc-right']/h1")?.InnerText ?? "";
+                        Movies[i].OriginalName = doc.DocumentNode.SelectSingleNode("//div[@id='mc-right']/span")?.InnerText ?? "";
+                        if (string.IsNullOrEmpty(Movies[i].OriginalName))
+                        {
+                            Movies[i].OriginalName = Movies[i].UkrName;
+                        }
+
+                        var labels = doc.DocumentNode.SelectNodes("//div[@class='mi-label-desc']");
+                        var infos = doc.DocumentNode.SelectNodes("//div[@class='mi-desc']");
+
+                        Movies[i].Director = StringHelper.GetPropertyValueByLabel("Режисер:", labels, infos);
+                        Movies[i].Actors = StringHelper.GetPropertyValueByLabel("В ролях:", labels, infos);
+                        Movies[i].Companies = StringHelper.GetPropertyValueByLabel("Кінокомпанія:", labels, infos);
+                        Movies[i].Genre = StringHelper.GetPropertyValueByLabel("Жанр:", labels, infos);
+                        Movies[i].Countries = StringHelper.GetPropertyValueByLabel("Країна:", labels, infos);
+                        var currentDesc = labels.FirstOrDefault(l => l.InnerText == "Рік:");
+                        Movies[i].Year = currentDesc != null ? Convert.ToInt32(infos[labels.IndexOf(currentDesc)]?.InnerText ?? "0") : 0;
+                        Movies[i].Length = StringHelper.GetPropertyValueByLabel("Тривалість:", labels, infos, "00:00:00");
+
+                        Movies[i].ImdbRate = Convert.ToDouble(doc.DocumentNode.SelectSingleNode("//div[@class='mr-item-rate']")?.InnerText?.Trim()?.Replace('.', ',') ?? "0");
+                        Movies[i].Poster = doc.DocumentNode.SelectSingleNode("//div[@class='m-img']/img")?.Attributes["src"]?.Value ?? "no-poster.jpg";
+                        var story = doc.DocumentNode.SelectSingleNode("//div[@class='m-desc full-text clearfix']")?.InnerHtml ?? "<div class=\"m-info\">";
+                        Movies[i].Story = HtmlHelper.StripHtml(story.Substring(0, story.IndexOf("<div class=\"m-info\">"))).Replace("\t", "").Replace("\n", "").Replace("  ", " ");
                     });
-                    Movies[i].UkrName = doc.DocumentNode.SelectSingleNode("//div[@id='mc-right']/h1")?.InnerText ?? "";
-                    Movies[i].OriginalName = doc.DocumentNode.SelectSingleNode("//div[@id='mc-right']/span")?.InnerText ?? "";
-
-                    var info = doc.DocumentNode.SelectNodes("//div[@class='mi-desc']");
-                    Movies[i].Director = info[0]?.InnerText ?? "";
-                    Movies[i].Actors = info[1]?.InnerText ?? "";
-                    Movies[i].Companies = info[2]?.InnerText ?? "";
-                    Movies[i].Genre = info[3]?.InnerText ?? "";
-                    Movies[i].Countries = info[4]?.InnerText ?? "";
-                    Movies[i].Year = Convert.ToInt32(info[5]?.InnerText ?? "0");
-                    Movies[i].Length = info[6]?.InnerText ?? "00:00:00";
-
-                    Movies[i].ImdbRate = Convert.ToDouble(doc.DocumentNode.SelectSingleNode("//div[@class='mr-item-rate']")?.InnerText?.Trim()?.Replace('.',',') ?? "0");
-                    Movies[i].Poster = doc.DocumentNode.SelectSingleNode("//div[@class='m-img']/img")?.Attributes["src"]?.Value ?? "no-poster.jpg";
-                    var story = doc.DocumentNode.SelectSingleNode("//div[@class='m-desc full-text clearfix']")?.InnerHtml ?? "<div class=\"m-info\">";
-                    Movies[i].Story = HtmlHelper.StripHtml(story.Substring(0, story.IndexOf("<div class=\"m-info\">"))).Replace("\t", "").Replace("\n","").Replace("  ", " ");
 
                     //Getting comments
                     int cstart = 1;
-                    while(true)
+                    while (true)
                     {
                         using (var httpClient = new HttpClient())
                         {
                             var url = $"https://uafilm.tv/engine/ajax/comments.php?cstart={cstart}&news_id={Movies[i].Id}&skin=uafilm&massact=disable";
                             var json = await httpClient.GetStringAsync(url);
                             var response = JsonConvert.DeserializeObject<CommentResponse>(json);
-                            if(string.IsNullOrEmpty(response.comments))
+                            if (string.IsNullOrEmpty(response.comments))
                             {
                                 break;
                             }
-                            doc.LoadHtml(response.comments);
+                            await Task.Run(() =>
+                            {
+                                doc.LoadHtml(response.comments);
+                            });
 
                             var commentAuthors = doc.DocumentNode.SelectNodes("//div[@class='comm-author']");
                             var commentTexts = doc.DocumentNode.SelectNodes("//div[@class='comm-body clearfix']/div");
-                            for(int j=0; j< commentAuthors.Count; ++j)
+                            var commentDates = doc.DocumentNode.SelectNodes("//div[@class='comm-num']");
+                            for (int j = 0; j < commentAuthors.Count; ++j)
                             {
-                                var comment = new Comment(commentAuthors[j].InnerText, commentTexts[j].InnerText, DateTime.Now);
+                                var date = commentDates[j].InnerText.GetDateTime();
+                                var comment = new Comment(commentAuthors[j].InnerText, commentTexts[j].InnerText, date);
                                 Comments.Add(comment);
                                 Movies[i].Comments.Add(comment);
                             }
@@ -319,9 +371,9 @@ namespace parser.ViewModels
                 {
                     BinaryFormatter ser = new BinaryFormatter();
                     Movies = (ObservableCollection<Movie>)ser.Deserialize(reader);
-                    foreach(Movie mv in Movies)
+                    foreach (Movie mv in Movies)
                     {
-                        foreach(Comment cm in mv.Comments)
+                        foreach (Comment cm in mv.Comments)
                         {
                             Comments.Add(cm);
                         }
@@ -346,17 +398,36 @@ namespace parser.ViewModels
             }
         }
 
+        private void OpenSaveCommentsWindow(object parameter)
+        {
+            if (Comments.Count != 0)
+            {
+                IsSavingMode = true;
+                Title = "Збереження коментарів";
+                StartCommand = new Command(SaveComments);
+                PagesWindow ppw = new PagesWindow(this);
+                ppw.Show();
+                ppw.Owner = ((MainWindow)System.Windows.Application.Current.MainWindow); ;
+            }
+        }
+
         private async void SaveComments(object parameter)
         {
             Microsoft.Win32.SaveFileDialog svd = new Microsoft.Win32.SaveFileDialog();
-            svd.Filter = "csv(*.csv)|*.csv";
+            svd.Filter = $"{SavingFormat.Substring(2, SavingFormat.Length - 2)}({SavingFormat})|{SavingFormat}";
             if (svd.ShowDialog() ?? true)
             {
                 using (StreamWriter fileStr = new StreamWriter(new FileStream(svd.FileName, FileMode.Create)))
                 {
-                    foreach(var comment in Comments)
+                    ErrorsCount = 0;
+                    Progress = 0;
+                    Maximum = To - From + 1;
+                    int fromIndex = Comments.Count - From;
+                    int toIndex = Comments.Count - To;
+                    for (int i = fromIndex; i >= toIndex; --i)
                     {
-                        await fileStr.WriteLineAsync($"{comment.CommentText},{comment.Sentiment}");
+                        await fileStr.WriteLineAsync($"{Comments[i].CommentText},{Comments[i].Sentiment}");
+                        ++Progress;
                     }
                 }
             }

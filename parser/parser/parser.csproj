@@ -34,6 +34,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>bot.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="HtmlAgilityPack, Version=1.11.3.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
       <HintPath>..\packages\HtmlAgilityPack.1.11.3\lib\Net45\HtmlAgilityPack.dll</HintPath>
@@ -70,7 +73,7 @@
     <Compile Include="Converters\InverseBoolConverter.cs" />
     <Compile Include="Converters\ListItemIdConverter.cs" />
     <Compile Include="Helpers\Command.cs" />
-    <Compile Include="Helpers\DateTimeHelper.cs" />
+    <Compile Include="Helpers\StringHelper.cs" />
     <Compile Include="Helpers\HtmlHelper.cs" />
     <Compile Include="Models\Country.cs" />
     <Compile Include="Models\Genre.cs" />
@@ -84,8 +87,8 @@
     <Compile Include="Windows\MovieWindow.xaml.cs">
       <DependentUpon>MovieWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\ParsingPagesWindow.xaml.cs">
-      <DependentUpon>ParsingPagesWindow.xaml</DependentUpon>
+    <Compile Include="Windows\PagesWindow.xaml.cs">
+      <DependentUpon>PagesWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -103,7 +106,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\ParsingPagesWindow.xaml">
+    <Page Include="Windows\PagesWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -135,6 +138,8 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="bot.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

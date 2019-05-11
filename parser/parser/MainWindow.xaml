@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:parser"
         xmlns:converters="clr-namespace:parser.Converters"
         mc:Ignorable="d"
-        Title="Класифікація коментарів" Height="700" Width="1200">
+        Title="Класифікація коментарів" Height="700" Width="1200" Icon="bot.ico">
     <Window.Resources>
         <converters:ListItemIdConverter x:Key="ListItemIdConverter"/>
         <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
@@ -146,7 +146,7 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Button Content="Розпарсити фільми" Command="{Binding OpenParsingMovieWindowCommand}" Margin="3"/>
-                                        <Button Content="???" Command="" Margin="3" Grid.Row="2"/>
+                                        <Button Content="Зберегти коментарі" Command="{Binding OpenSaveCommentsWindowCommand}" Margin="3" Grid.Row="2"/>
                                         <Button Content="Відкрити з bin" Command="{Binding OpenFromBinaryCommand}" Margin="3"  Grid.Column="1"/>
                                         <Button Content="Зберегти в bin" Command="{Binding SaveToBinaryCommand}" Margin="3" Grid.Row="2" Grid.Column="1"/>
 
