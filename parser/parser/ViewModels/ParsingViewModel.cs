@@ -277,6 +277,7 @@ namespace parser.ViewModels
             {
                 try
                 {
+                    //Getting movie info
                     await Task.Run(() =>
                     {
                         doc = web.Load(Movies[i].Link);
@@ -307,36 +308,40 @@ namespace parser.ViewModels
                     });
 
                     //Getting comments
-                    int cstart = 1;
-                    while (true)
+                    int page = 1;
+                    bool finished = false;
+                    do
                     {
                         using (var httpClient = new HttpClient())
                         {
-                            var url = $"https://uafilm.tv/engine/ajax/comments.php?cstart={cstart}&news_id={Movies[i].Id}&skin=uafilm&massact=disable";
+                            var url = $"https://uafilm.tv/engine/ajax/comments.php?cstart={page}&news_id={Movies[i].Id}&skin=uafilm&massact=disable";
                             var json = await httpClient.GetStringAsync(url);
                             var response = JsonConvert.DeserializeObject<CommentResponse>(json);
-                            if (string.IsNullOrEmpty(response.comments))
+                            if (!string.IsNullOrEmpty(response.comments))
                             {
-                                break;
-                            }
-                            await Task.Run(() =>
-                            {
-                                doc.LoadHtml(response.comments);
-                            });
+                                await Task.Run(() =>
+                                {
+                                    doc.LoadHtml(response.comments);
+                                });
 
-                            var commentAuthors = doc.DocumentNode.SelectNodes("//div[@class='comm-author']");
-                            var commentTexts = doc.DocumentNode.SelectNodes("//div[@class='comm-body clearfix']/div");
-                            var commentDates = doc.DocumentNode.SelectNodes("//div[@class='comm-num']");
-                            for (int j = 0; j < commentAuthors.Count; ++j)
-                            {
-                                var date = commentDates[j].InnerText.GetDateTime();
-                                var comment = new Comment(commentAuthors[j].InnerText, commentTexts[j].InnerText, date);
-                                Comments.Add(comment);
-                                Movies[i].Comments.Add(comment);
+                                var commentAuthors = doc.DocumentNode.SelectNodes("//div[@class='comm-author']");
+                                var commentTexts = doc.DocumentNode.SelectNodes("//div[@class='comm-body clearfix']/div");
+                                var commentDates = doc.DocumentNode.SelectNodes("//div[@class='comm-num']");
+                                for (int j = 0; j < commentAuthors.Count; ++j)
+                                {
+                                    var date = commentDates[j].InnerText.GetDateTime();
+                                    var comment = new Comment(commentAuthors[j].InnerText, commentTexts[j].InnerText, date);
+                                    Comments.Add(comment);
+                                    Movies[i].Comments.Add(comment);
+                                }
+                                ++page;
                             }
-                            ++cstart;
+                            else
+                            {
+                                finished = true;
+                            }
                         }
-                    }
+                    } while (!finished);
 
                     ++Progress;
                     Thread.Sleep(SleepTime);
