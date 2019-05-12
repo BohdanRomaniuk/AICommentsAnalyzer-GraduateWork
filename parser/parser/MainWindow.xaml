@@ -113,7 +113,7 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Button Content="Оновити інформацію" Command="" Margin="3" IsEnabled="False" Foreground="Red"/>
+                                        <Button Visibility="Collapsed" Content="Оновити інформацію" Command="" Margin="3" IsEnabled="False" Foreground="Red"/>
                                         <Button Content="Отримати інформацію" Command="{Binding GetAllInfoCommand}" Grid.Column="1" Margin="3"/>
                                     </Grid>
                                 </Grid>
@@ -150,8 +150,8 @@
                                         <Button Content="Відкрити з bin" Command="{Binding OpenFromBinaryCommand}" Margin="3"  Grid.Column="1"/>
                                         <Button Content="Зберегти в bin" Command="{Binding SaveToBinaryCommand}" Margin="3" Grid.Row="2" Grid.Column="1"/>
 
-                                        <Button Content="Зберегти коментарі" Command="{Binding SaveCommentsCommand}" Margin="3" Grid.Column="2"/>
-                                        <Button Content="2" Command="{Binding SaveToTsvCommand}" Margin="3" Grid.Row="2" Grid.Column="2"/>
+                                        <Button Content="Командний рядок" Command="{Binding RunCMD}" Margin="3" Grid.Column="2"/>
+                                        <Button Content="2" Command="" Margin="3" Grid.Row="2" Grid.Column="2"/>
 
                                         <Button Content="3" Command="" Margin="3" Grid.Column="3"/>
                                         <Button Content="4" Command="" Margin="3" Grid.Row="1" Grid.Column="3"/>
@@ -259,7 +259,7 @@
                                     </ListView.Resources>
                                     <ListView.View>
                                         <GridView>
-                                            <GridViewColumn Header="№" Width="{Binding ElementName=comemntwidth1, Path=ActualWidth}" DisplayMemberBinding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListViewItem}} , Converter={StaticResource ListItemIdConverter}}" />
+                                            <GridViewColumn Header="№" Width="{Binding ElementName=comemntwidth1, Path=ActualWidth}" DisplayMemberBinding="{Binding Id}" />
                                             <GridViewColumn Header="Автор" Width="{Binding ElementName=comemntwidth2, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentAuthor}"/>
                                             <GridViewColumn Header="Текст" Width="{Binding ElementName=comemntwidth3, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentText}" />
                                             <GridViewColumn Header="Дата" Width="{Binding ElementName=comemntwidth4, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentDate}" />

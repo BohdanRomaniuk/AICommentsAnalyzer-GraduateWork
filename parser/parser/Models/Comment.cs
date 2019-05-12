@@ -8,11 +8,21 @@ namespace parser.Models
     [Serializable]
     public class Comment : INotifyPropertyChanged
     {
+        private int id;
         private string commentAuthor;
         private string commentText;
         private DateTime commentDate;
         private int sentiment;
 
+        public int Id
+        {
+            get => id;
+            set
+            {
+                id = value;
+                OnPropertyChanged(nameof(Id));
+            }
+        }
         public string CommentAuthor
         {
             get => commentAuthor;
@@ -57,8 +67,9 @@ namespace parser.Models
         {
         }
 
-        public Comment(string _author, string _text, DateTime _date, int _sentiment = 0)
+        public Comment(int _id, string _author, string _text, DateTime _date, int _sentiment = 0)
         {
+            Id = _id;
             CommentAuthor = _author;
             CommentText = _text;
             CommentDate = _date;

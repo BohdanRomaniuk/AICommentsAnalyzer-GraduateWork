@@ -6,10 +6,12 @@ using parser.Models.Json;
 using parser.Windows;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -185,6 +187,8 @@ namespace parser.ViewModels
 
         public ICommand OpenSaveCommentsWindowCommand { get; }
 
+        public ICommand RunCMD { get; }
+
         public ParsingViewModel()
         {
             IsMoviesMode = true;
@@ -203,6 +207,28 @@ namespace parser.ViewModels
             MarkAsPositiveCommand = new Command(MarkAsPositive);
             MarkAsNegativeCommand = new Command(MarkAsNegative);
             OpenSaveCommentsWindowCommand = new Command(OpenSaveCommentsWindow);
+
+            RunCMD = new Command(Run);
+        }
+
+        private void Run(object parameter)
+        {
+            ProcessStartInfo start = new ProcessStartInfo();
+            start.FileName = "C:/Users/Bohdan/AppData/Local/Programs/Python/Python36/python.exe";
+            var cmd = "C:/test.py";
+            var args = "";
+            start.Arguments = string.Format("{0}", cmd, args);
+            start.UseShellExecute = false;
+            start.RedirectStandardOutput = true;
+            start.CreateNoWindow = true;
+            using (Process process = Process.Start(start))
+            {
+                using (StreamReader reader = process.StandardOutput)
+                {
+                    string result = reader.ReadToEnd();
+                    MessageBox.Show(result);
+                }
+            }
         }
 
         private void MarkAsPositive(object parameter)
@@ -330,7 +356,7 @@ namespace parser.ViewModels
                                 for (int j = 0; j < commentAuthors.Count; ++j)
                                 {
                                     var date = commentDates[j].InnerText.GetDateTime();
-                                    var comment = new Comment(commentAuthors[j].InnerText, commentTexts[j].InnerText, date);
+                                    var comment = new Comment(Convert.ToInt32(Regex.Match(commentTexts[j].Id,"[0-9]+")?.Value ?? "0"), commentAuthors[j].InnerText, commentTexts[j].InnerText, date);
                                     Comments.Add(comment);
                                     Movies[i].Comments.Add(comment);
                                 }
@@ -420,6 +446,7 @@ namespace parser.ViewModels
         {
             Microsoft.Win32.SaveFileDialog svd = new Microsoft.Win32.SaveFileDialog();
             svd.Filter = $"{SavingFormat.Substring(2, SavingFormat.Length - 2)}({SavingFormat})|{SavingFormat}";
+            var separator = SavingFormat == "*.csv" ? ',' : '\t';
             if (svd.ShowDialog() ?? true)
             {
                 using (StreamWriter fileStr = new StreamWriter(new FileStream(svd.FileName, FileMode.Create)))
@@ -431,7 +458,7 @@ namespace parser.ViewModels
                     int toIndex = Comments.Count - To;
                     for (int i = fromIndex; i >= toIndex; --i)
                     {
-                        await fileStr.WriteLineAsync($"{Comments[i].CommentText},{Comments[i].Sentiment}");
+                        await fileStr.WriteLineAsync($"{Comments[i].CommentText}{separator}{Comments[i].Sentiment}");
                         ++Progress;
                     }
                 }
