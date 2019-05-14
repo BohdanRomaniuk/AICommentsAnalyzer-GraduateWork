@@ -71,6 +71,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\InverseBoolConverter.cs" />
+    <Compile Include="Converters\InverseListItemIdConverter.cs" />
     <Compile Include="Converters\ListItemIdConverter.cs" />
     <Compile Include="Helpers\Command.cs" />
     <Compile Include="Helpers\StringHelper.cs" />
@@ -78,17 +79,23 @@
     <Compile Include="Models\Country.cs" />
     <Compile Include="Models\Genre.cs" />
     <Compile Include="Models\Json\CommentResponse.cs" />
-    <Compile Include="ViewModels\BaseViewModel.cs" />
+    <Compile Include="Models\Common\TrainingInfoModel.cs" />
+    <Compile Include="ViewModels\Base\AnalyzeCommentsViewModel.cs" />
+    <Compile Include="ViewModels\Base\BaseViewModel.cs" />
     <Compile Include="Models\Comment.cs" />
     <Compile Include="Models\Movie.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\MovieWindowViewModel.cs" />
     <Compile Include="ViewModels\ParsingViewModel.cs" />
+    <Compile Include="ViewModels\TrainingViewModel.cs" />
     <Compile Include="Windows\MovieWindow.xaml.cs">
       <DependentUpon>MovieWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\PagesWindow.xaml.cs">
       <DependentUpon>PagesWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\PreviewWindow.xaml.cs">
+      <DependentUpon>PreviewWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -107,6 +114,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\PagesWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\PreviewWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -141,5 +152,6 @@
   <ItemGroup>
     <Resource Include="bot.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

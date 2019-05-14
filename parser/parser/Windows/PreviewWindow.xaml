@@ -1,0 +1,33 @@
+﻿<Window x:Class="parser.Windows.PreviewWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:parser.Windows"
+        xmlns:converters="clr-namespace:parser.Converters"
+        mc:Ignorable="d"
+        Title="Перегляд" Height="450" Width="400">
+    <Window.Resources>
+        <converters:InverseListItemIdConverter x:Key="InverseListItemIdConverter"/>
+    </Window.Resources>
+    <GroupBox Header="Стоп слова">
+        <Grid>
+            <Grid Margin="20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.1*"></ColumnDefinition>
+                    <ColumnDefinition Width="0.8*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Name="wordwidth1"></Border>
+                <Border Grid.Column="1" Name="wordwidth2"></Border>
+            </Grid>
+            <ListView x:Name="words" HorizontalAlignment="Left" Margin="3" ItemsSource="{Binding Path=StopWords, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="trimmed">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="№" Width="{Binding ElementName=wordwidth1, Path=ActualWidth}" DisplayMemberBinding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListViewItem}}, Converter={StaticResource InverseListItemIdConverter}}" />
+                        <GridViewColumn Header="Стоп слово" Width="{Binding ElementName=wordwidth2, Path=ActualWidth}" DisplayMemberBinding="{Binding}" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Grid>
+    </GroupBox>
+</Window>

@@ -12,10 +12,6 @@
         <converters:ListItemIdConverter x:Key="ListItemIdConverter"/>
         <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
     </Window.Resources>
-    <Window.InputBindings>
-        <KeyBinding Key="D1" Command="{Binding Models[0].MarkAsPositiveCommand}" CommandParameter="{Binding SelectedItem, ElementName=comments}"/>
-        <KeyBinding Key="D2" Command="{Binding Models[0].MarkAsNegativeCommand}" CommandParameter="{Binding SelectedItem, ElementName=comments}"/>
-    </Window.InputBindings>
     <DockPanel>
         <Menu DockPanel.Dock="Top" BorderBrush="Black">
             <MenuItem Header="Файл" Command="">
@@ -127,12 +123,12 @@
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="3*"/>
                                             <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="2*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Button Content="Перевірити оновлення" Command="" Margin="3" Foreground="#FF2B96E2"/>
-                                        <Label Content="Пошук по розділу" Grid.Column="1" HorizontalAlignment="Center"/>
-                                        <TextBox Text="" Grid.Column="2" Margin="3"/>
+                                        <Label Content="Файл коментарів:" HorizontalAlignment="Center"/>
+                                        <TextBox Text="{Binding TrainingInfo.CommentsFile}" IsReadOnly="True" Grid.Column="1" Margin="3"/>
+                                        <Button Content="Вибрати файл" Grid.Column="2" Command="" Margin="3" />
                                     </Grid>
                                     <Grid Grid.Row="1">
                                         <Grid.RowDefinitions>
@@ -228,6 +224,7 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="0.01*"></ColumnDefinition>
+                                        <ColumnDefinition Width="0.01*"></ColumnDefinition>
                                         <ColumnDefinition Width="0.03*"></ColumnDefinition>
                                         <ColumnDefinition Width="0.2*"></ColumnDefinition>
                                         <ColumnDefinition Width="0.03*"></ColumnDefinition>
@@ -238,6 +235,7 @@
                                     <Border Grid.Column="2" Name="comemntwidth3"></Border>
                                     <Border Grid.Column="3" Name="comemntwidth4"></Border>
                                     <Border Grid.Column="4" Name="comemntwidth5"></Border>
+                                    <Border Grid.Column="4" Name="comemntwidth6"></Border>
                                 </Grid>
                                 <ListView x:Name="comments" HorizontalAlignment="Left" Margin="3" ItemsSource="{Binding Path=Comments, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="trimmed">
                                     <i:Interaction.Triggers>
@@ -257,19 +255,157 @@
                                             <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Text }" />
                                         </Style>
                                     </ListView.Resources>
+                                    <ListView.InputBindings>
+                                        <KeyBinding Key="D1" Command="{Binding MarkAsPositiveCommand}" CommandParameter="{Binding SelectedItem, ElementName=comments}"/>
+                                        <KeyBinding Key="D2" Command="{Binding MarkAsNegativeCommand}" CommandParameter="{Binding SelectedItem, ElementName=comments}"/>
+                                    </ListView.InputBindings>
                                     <ListView.View>
                                         <GridView>
-                                            <GridViewColumn Header="№" Width="{Binding ElementName=comemntwidth1, Path=ActualWidth}" DisplayMemberBinding="{Binding Id}" />
-                                            <GridViewColumn Header="Автор" Width="{Binding ElementName=comemntwidth2, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentAuthor}"/>
-                                            <GridViewColumn Header="Текст" Width="{Binding ElementName=comemntwidth3, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentText}" />
-                                            <GridViewColumn Header="Дата" Width="{Binding ElementName=comemntwidth4, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentDate}" />
-                                            <GridViewColumn Header="Тональність" Width="{Binding ElementName=comemntwidth5, Path=ActualWidth}" DisplayMemberBinding="{Binding Sentiment}" />
+                                            <GridViewColumn Header="№" Width="{Binding ElementName=comemntwidth1, Path=ActualWidth}" DisplayMemberBinding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListViewItem}}, Converter={StaticResource ListItemIdConverter}}" />
+                                            <GridViewColumn Header="Id" Width="{Binding ElementName=comemntwidth2, Path=ActualWidth}" DisplayMemberBinding="{Binding Id}"/>
+                                            <GridViewColumn Header="Автор" Width="{Binding ElementName=comemntwidth3, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentAuthor}"/>
+                                            <GridViewColumn Header="Текст" Width="{Binding ElementName=comemntwidth4, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentText}" />
+                                            <GridViewColumn Header="Дата" Width="{Binding ElementName=comemntwidth5, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentDate}" />
+                                            <GridViewColumn Header="Тональність" Width="{Binding ElementName=comemntwidth6, Path=ActualWidth}" DisplayMemberBinding="{Binding Sentiment}" />
                                         </GridView>
                                     </ListView.View>
                                 </ListView>
                             </Grid>
                         </Grid>
                     </Grid>
+                </TabItem>
+                <TabItem Header="Навчання" DataContext="{Binding Models[1]}" >
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.5*"/>
+                                <ColumnDefinition Width="0.4*"/>
+                                <ColumnDefinition Width="0.8*"/>
+                            </Grid.ColumnDefinitions>
+                            <GroupBox Header="Нейронна мережа" Grid.Column="0" Margin="3,0,3,3">
+                                <Grid>
+                                    
+                                </Grid>
+                            </GroupBox>
+                            <GroupBox Header="Статистика" Grid.Column="1" Margin="3,0,3,3">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="Усього фільмів:"/>
+                                    <Label FontWeight="Bold" Content="{Binding Movies.Count}" Grid.Column="1"/>
+                                    <Label Content="Усього коментарів:" Grid.Row="1"/>
+                                    <Label FontWeight="Bold" Content="{Binding Comments.Count}" Grid.Row="1" Grid.Column="1"/>
+                                    <Label Content="Відображено:" Grid.Row="2"/>
+                                    <Label FontWeight="Bold" Foreground="Green" Content="" Grid.Row="2" Grid.Column="1"/>
+                                </Grid>
+                            </GroupBox>
+                            <GroupBox Header="Робота з коментарями" Grid.Column="3" Margin="3,0,3,3">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="3*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Content="Файл коментарів:" HorizontalAlignment="Center"/>
+                                        <TextBox Text="{Binding TrainingInfo.CommentsFile}" IsReadOnly="True" Grid.Column="1" Margin="3"/>
+                                        <Button Content="Вибрати файл" Grid.Column="2" Command="{Binding OpenCommentsFileCommand}" Margin="3" />
+                                    </Grid>
+                                    <Grid Grid.Row="1">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Content="1. Нижній регістр" Command="{Binding ToLowerCaseCommand}" Margin="3"/>
+                                        <Button Content="2. Видалити символи" Command="{Binding RemoveSymbolsCommand}" Margin="3" Grid.Row="2"/>
+                                        <Button Content="3. Видалити шумові слова" Command="{Binding RemoveStopWordsCommand}" Margin="3"  Grid.Column="1"/>
+                                        <Button Content="Переглянути шумові слова" Command="{Binding ViewStopWordsCommand}" Margin="3" Grid.Row="2" Grid.Column="1"/>
+
+                                        <Button Content="1" Command="{Binding }" Margin="3" Grid.Column="2"/>
+                                        <Button Content="2" Command="" Margin="3" Grid.Row="2" Grid.Column="2"/>
+
+                                        <Button Content="3" Command="" Margin="3" Grid.Column="3"/>
+                                        <Button Content="4" Command="" Margin="3" Grid.Row="1" Grid.Column="3"/>
+                                    </Grid>
+                                </Grid>
+                            </GroupBox>
+                        </Grid>
+                        <Grid Grid.Row="1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="0.01*"></ColumnDefinition>
+                                    <ColumnDefinition Width="0.01*"></ColumnDefinition>
+                                    <ColumnDefinition Width="0.03*"></ColumnDefinition>
+                                    <ColumnDefinition Width="0.2*"></ColumnDefinition>
+                                    <ColumnDefinition Width="0.03*"></ColumnDefinition>
+                                    <ColumnDefinition Width="0.03*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Name="comemnt_trainwidth1"></Border>
+                                <Border Grid.Column="1" Name="comemnt_trainwidth2"></Border>
+                                <Border Grid.Column="2" Name="comemnt_trainwidth3"></Border>
+                                <Border Grid.Column="3" Name="comemnt_trainwidth4"></Border>
+                                <Border Grid.Column="4" Name="comemnt_trainwidth5"></Border>
+                                <Border Grid.Column="4" Name="comemnt_trainwidth6"></Border>
+                            </Grid>
+                            <ListView x:Name="comments_train" HorizontalAlignment="Left" Margin="3" ItemsSource="{Binding Path=TrainingInfo.Comments, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="trimmed">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="SelectionChanged">
+                                        <i:InvokeCommandAction Command="{Binding ShowComemntCommand}" CommandParameter="{Binding SelectedItem, ElementName=comments}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="Height" Value="18" />
+                                        <Setter Property="Background" Value="{Binding Brush}"/>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                                <ListView.Resources>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                                        <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=Text }" />
+                                    </Style>
+                                </ListView.Resources>
+                                <ListView.InputBindings>
+                                    <KeyBinding Key="D1" Command="{Binding MarkAsPositiveCommand}" CommandParameter="{Binding SelectedItem, ElementName=comments_train}"/>
+                                    <KeyBinding Key="D2" Command="{Binding MarkAsNegativeCommand}" CommandParameter="{Binding SelectedItem, ElementName=comments_train}"/>
+                                </ListView.InputBindings>
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="№" Width="{Binding ElementName=comemnt_trainwidth1, Path=ActualWidth}" DisplayMemberBinding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListViewItem}}, Converter={StaticResource ListItemIdConverter}}" />
+                                        <GridViewColumn Header="Id" Width="{Binding ElementName=comemnt_trainwidth2, Path=ActualWidth}" DisplayMemberBinding="{Binding Id}" />
+                                        <GridViewColumn Header="Автор" Width="{Binding ElementName=comemnt_trainwidth3, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentAuthor}" />
+                                        <GridViewColumn Header="Текст" Width="{Binding ElementName=comemnt_trainwidth4, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentText}" />
+                                        <GridViewColumn Header="Дата" Width="{Binding ElementName=comemnt_trainwidth5, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentDate}" />
+                                        <GridViewColumn Header="Тональність" Width="{Binding ElementName=comemnt_trainwidth6, Path=ActualWidth}" DisplayMemberBinding="{Binding Sentiment}" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Тестування" DataContext="{Binding Models[1]}">
+                    
                 </TabItem>
             </TabControl>
             <DockPanel DataContext="{Binding ElementName=tabControl, Path=SelectedItem.DataContext}" Grid.Row="1">

@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using parser.Models.Common;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -10,9 +11,11 @@ namespace parser.ViewModels
 
         public MainViewModel()
         {
+            TrainingInfoModel training = new TrainingInfoModel();
             Models = new ObservableCollection<object>
             {
-                new ParsingViewModel()
+                new ParsingViewModel(training),
+                new TrainingViewModel(training)
             };
         }
 

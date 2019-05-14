@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using parser.Helpers;
 using parser.Models;
+using parser.Models.Common;
 using parser.Models.Json;
 using parser.Windows;
 using System;
@@ -19,7 +20,7 @@ using System.Windows.Input;
 
 namespace parser.ViewModels
 {
-    public class ParsingViewModel : BaseViewModel
+    public class ParsingViewModel : AnalyzeCommentsViewModel
     {
         private bool isMoviesMode;
         private string url;
@@ -174,6 +175,18 @@ namespace parser.ViewModels
         public ObservableCollection<Movie> Movies { get; set; }
         public ObservableCollection<Comment> Comments { get; set; }
 
+        //Training
+        private TrainingInfoModel trainingInfo;
+        public TrainingInfoModel TrainingInfo
+        {
+            get => trainingInfo;
+            set
+            {
+                trainingInfo = value;
+                OnPropertyChanged(nameof(TrainingInfo));
+            }
+        }
+
         public ICommand GetAllInfoCommand { get; }
         public ICommand OpenParsingMovieWindowCommand { get; }
         public ICommand StartCommand { get; private set; }
@@ -182,15 +195,15 @@ namespace parser.ViewModels
         public ICommand OpenFromBinaryCommand { get; }
         public ICommand SaveToBinaryCommand { get; }
 
-        public ICommand MarkAsPositiveCommand { get; }
-        public ICommand MarkAsNegativeCommand { get; }
+        
 
         public ICommand OpenSaveCommentsWindowCommand { get; }
 
         public ICommand RunCMD { get; }
 
-        public ParsingViewModel()
+        public ParsingViewModel(TrainingInfoModel _trainingInfo)
         {
+            TrainingInfo = _trainingInfo;
             IsMoviesMode = true;
             Url = @"https://uafilm.tv/films/";
             FromPage = 1;
@@ -204,10 +217,7 @@ namespace parser.ViewModels
             ShowMovieCommand = new Command(ShowMovie);
             OpenFromBinaryCommand = new Command(OpenFromBinary);
             SaveToBinaryCommand = new Command(SaveToBinary);
-            MarkAsPositiveCommand = new Command(MarkAsPositive);
-            MarkAsNegativeCommand = new Command(MarkAsNegative);
             OpenSaveCommentsWindowCommand = new Command(OpenSaveCommentsWindow);
-
             RunCMD = new Command(Run);
         }
 
@@ -215,7 +225,7 @@ namespace parser.ViewModels
         {
             ProcessStartInfo start = new ProcessStartInfo();
             start.FileName = "C:/Users/Bohdan/AppData/Local/Programs/Python/Python36/python.exe";
-            var cmd = "C:/test.py";
+            var cmd = "C:/tests.py";
             var args = "";
             start.Arguments = string.Format("{0}", cmd, args);
             start.UseShellExecute = false;
@@ -229,16 +239,6 @@ namespace parser.ViewModels
                     MessageBox.Show(result);
                 }
             }
-        }
-
-        private void MarkAsPositive(object parameter)
-        {
-            (parameter as Comment).Sentiment = 1;
-        }
-
-        private void MarkAsNegative(object parameter)
-        {
-            (parameter as Comment).Sentiment = 0;
         }
 
         private async void GetAllInfo(object parameter)
@@ -375,7 +375,7 @@ namespace parser.ViewModels
                 catch (Exception exc)
                 {
                     ++ErrorsCount;
-                    System.Windows.MessageBox.Show(exc.Message + "\n" + Movies[i].Name + "\n" + Movies[i].Link, "Виникла помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(exc.Message + "\n" + Movies[i].Name + "\n" + Movies[i].Link, "Виникла помилка", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -449,7 +449,8 @@ namespace parser.ViewModels
             var separator = SavingFormat == "*.csv" ? ',' : '\t';
             if (svd.ShowDialog() ?? true)
             {
-                using (StreamWriter fileStr = new StreamWriter(new FileStream(svd.FileName, FileMode.Create)))
+                TrainingInfo.CommentsFile = svd.FileName;
+                using (StreamWriter fileStr = new StreamWriter(new FileStream(TrainingInfo.CommentsFile, FileMode.Create)))
                 {
                     ErrorsCount = 0;
                     Progress = 0;
@@ -459,6 +460,7 @@ namespace parser.ViewModels
                     for (int i = fromIndex; i >= toIndex; --i)
                     {
                         await fileStr.WriteLineAsync($"{Comments[i].CommentText}{separator}{Comments[i].Sentiment}");
+                        TrainingInfo.Comments.Add(Comments[i]);
                         ++Progress;
                     }
                 }
