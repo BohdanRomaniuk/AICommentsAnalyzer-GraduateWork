@@ -127,7 +127,7 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Label Content="Файл коментарів:" HorizontalAlignment="Center"/>
-                                        <TextBox Text="{Binding TrainingInfo.CommentsFile}" IsReadOnly="True" Grid.Column="1" Margin="3"/>
+                                        <TextBox Text="{Binding CommonInfo.TrainFile}" IsReadOnly="True" Grid.Column="1" Margin="3"/>
                                         <Button Content="Вибрати файл" Grid.Column="2" Command="" Margin="3" />
                                     </Grid>
                                     <Grid Grid.Row="1">
@@ -339,7 +339,7 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Label Content="Навчальна вибірка:" HorizontalAlignment="Center"/>
-                                        <TextBox Text="{Binding TrainingInfo.CommentsFile}" IsReadOnly="True" Grid.Column="1" Margin="3"/>
+                                        <TextBox Text="{Binding CommonInfo.TrainFile}" IsReadOnly="True" Grid.Column="1" Margin="3"/>
                                         <Button Content="Вибрати файл" Grid.Column="2" Command="{Binding OpenCommentsFileCommand}" Margin="3" />
                                     </Grid>
                                     <Grid Grid.Row="1">
@@ -384,7 +384,7 @@
                                 <Border Grid.Column="4" Name="comemnt_trainwidth5"></Border>
                                 <Border Grid.Column="4" Name="comemnt_trainwidth6"></Border>
                             </Grid>
-                            <ListView x:Name="comments_train" HorizontalAlignment="Left" Margin="3" ItemsSource="{Binding Path=TrainingInfo.Comments, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="trimmed">
+                            <ListView x:Name="comments_train" HorizontalAlignment="Left" Margin="3" ItemsSource="{Binding Path=CommonInfo.TrainComments, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="trimmed">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="SelectionChanged">
                                         <i:InvokeCommandAction Command="{Binding ShowComemntCommand}" CommandParameter="{Binding SelectedItem, ElementName=comments}"/>

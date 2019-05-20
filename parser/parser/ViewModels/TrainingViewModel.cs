@@ -19,16 +19,16 @@ namespace parser.ViewModels
 {
     public class TrainingViewModel : AnalyzeCommentsViewModel
     {
-        private TrainingInfoModel trainingInfo;
+        private CommonInfoModel trainingInfo;
         private string trainFileLocation;
 
-        public TrainingInfoModel TrainingInfo
+        public CommonInfoModel CommonInfo
         {
             get => trainingInfo;
             set
             {
                 trainingInfo = value;
-                OnPropertyChanged(nameof(TrainingInfo));
+                OnPropertyChanged(nameof(CommonInfo));
             }
         }
 
@@ -52,9 +52,9 @@ namespace parser.ViewModels
 
         public ICommand StartTrainCommand { get; }
 
-        public TrainingViewModel(TrainingInfoModel _trainingInfo)
+        public TrainingViewModel(CommonInfoModel _commonInfo)
         {
-            TrainingInfo = _trainingInfo;
+            CommonInfo = _commonInfo;
             OpenCommentsFileCommand = new Command(OpenCommentsFile);
             CleanCommand = new Command(Clean);
             RemoveStopWordsCommand = new Command(RemoveStopWords);
@@ -106,9 +106,9 @@ namespace parser.ViewModels
         private void Clean(object parameter)
         {
             //To lower case & removing symbols
-            Maximum = TrainingInfo.Comments.Count;
+            Maximum = CommonInfo.TrainComments.Count;
             Progress = 0;
-            foreach (Comment comment in TrainingInfo.Comments)
+            foreach (Comment comment in CommonInfo.TrainComments)
             {
                 comment.CommentText = Regex.Replace(comment.CommentText.ToLower(), @"[^\w\s]", " ");
                 comment.CommentText = Regex.Replace(comment.CommentText, @"[ ]{2,}", " ");
@@ -119,7 +119,7 @@ namespace parser.ViewModels
 
         private void RemoveStopWords(object parameter)
         {
-            foreach (Comment comment in TrainingInfo.Comments)
+            foreach (Comment comment in CommonInfo.TrainComments)
             {
                 var words = comment.CommentText.Split(' ').ToList();
                 for (int i = 0; i < words.Count; ++i)
@@ -145,7 +145,7 @@ namespace parser.ViewModels
 
         private async void GenerateTrainFile(object parameter)
         {
-            if (TrainingInfo.Comments.Count > 0)
+            if (CommonInfo.TrainComments.Count > 0)
             {
                 Directory.CreateDirectory("train");
                 TrainFileLocation = $"train\\comments_{DateTime.Now.ToString().Replace(":", "").Replace(" ", "_")}.csv";
@@ -154,7 +154,7 @@ namespace parser.ViewModels
                     ErrorsCount = 0;
                     Progress = 0;
                     await fileStr.WriteLineAsync("id,text,sentiment");
-                    foreach (var comment in TrainingInfo.Comments)
+                    foreach (var comment in CommonInfo.TrainComments)
                     {
                         await fileStr.WriteLineAsync($"{comment.Id},{comment.CommentText},{comment.Sentiment}");
                         ++Progress;
@@ -165,12 +165,12 @@ namespace parser.ViewModels
 
         private void OpenCommentsFile(object parameter)
         {
-            TrainingInfo.Comments.Clear();
+            CommonInfo.TrainComments.Clear();
             Microsoft.Win32.OpenFileDialog ofd = new Microsoft.Win32.OpenFileDialog();
             ofd.Filter = "bin(*.bin)|*.bin";
             if (ofd.ShowDialog() ?? true)
             {
-                TrainingInfo.CommentsFile =  ofd.FileName;
+                CommonInfo.TrainFile =  ofd.FileName;
             }
         }
     }

@@ -11,11 +11,12 @@ namespace parser.ViewModels
 
         public MainViewModel()
         {
-            TrainingInfoModel training = new TrainingInfoModel();
+            CommonInfoModel commonInfo = new CommonInfoModel();
             Models = new ObservableCollection<object>
             {
-                new ParsingViewModel(training),
-                new TrainingViewModel(training)
+                new ParsingViewModel(commonInfo),
+                new TrainingViewModel(commonInfo),
+                new TestViewModel(commonInfo)
             };
         }
 

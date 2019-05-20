@@ -142,14 +142,14 @@ namespace parser.ViewModels
         public ObservableCollection<Comment> Comments { get; set; }
 
         //Training
-        private TrainingInfoModel trainingInfo;
-        public TrainingInfoModel TrainingInfo
+        private CommonInfoModel trainingInfo;
+        public CommonInfoModel CommonInfo
         {
             get => trainingInfo;
             set
             {
                 trainingInfo = value;
-                OnPropertyChanged(nameof(TrainingInfo));
+                OnPropertyChanged(nameof(CommonInfo));
             }
         }
 
@@ -163,9 +163,9 @@ namespace parser.ViewModels
 
         public ICommand OpenSaveCommentsWindowCommand { get; }
 
-        public ParsingViewModel(TrainingInfoModel _trainingInfo)
+        public ParsingViewModel(CommonInfoModel _commonInfo)
         {
-            TrainingInfo = _trainingInfo;
+            CommonInfo = _commonInfo;
             IsMoviesMode = true;
             Url = @"https://uafilm.tv/films/";
             FromPage = 1;
@@ -394,7 +394,7 @@ namespace parser.ViewModels
                     BinaryFormatter binFormater = new BinaryFormatter();
                     binFormater.Serialize(fileStr, Comments);
                 }
-                TrainingInfo.CommentsFile = Path.Combine(BaseDirectory, fileName);
+                CommonInfo.TrainFile = Path.Combine(BaseDirectory, fileName);
             }
         }
     }

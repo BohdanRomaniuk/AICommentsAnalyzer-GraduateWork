@@ -79,7 +79,7 @@
     <Compile Include="Models\Country.cs" />
     <Compile Include="Models\Genre.cs" />
     <Compile Include="Models\Json\CommentResponse.cs" />
-    <Compile Include="Models\Common\TrainingInfoModel.cs" />
+    <Compile Include="Models\Common\CommonInfoModel.cs" />
     <Compile Include="ViewModels\Base\AnalyzeCommentsViewModel.cs" />
     <Compile Include="ViewModels\Base\BaseViewModel.cs" />
     <Compile Include="Models\Comment.cs" />
