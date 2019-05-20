@@ -1,6 +1,9 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace parser.Models.Common
 {
@@ -11,10 +14,14 @@ namespace parser.Models.Common
         private string commentsFile;
         public string CommentsFile
         {
-            get => commentsFile;
+            get => Path.GetFileName(commentsFile);
             set
             {
                 commentsFile = value;
+                if (File.Exists(value))
+                {
+                    LoadComments(value);
+                }
                 OnPropertyChanged(nameof(CommentsFile));
             }
         }
@@ -23,6 +30,17 @@ namespace parser.Models.Common
         {
             Comments = new ObservableCollection<Comment>();
             CommentsFile = string.Empty;
+        }
+
+        private void LoadComments(string fileName)
+        {
+            Comments.Clear();
+            using (Stream reader = File.Open(fileName, FileMode.Open))
+            {
+                BinaryFormatter ser = new BinaryFormatter();
+                Comments = (ObservableCollection<Comment>)ser.Deserialize(reader);
+                OnPropertyChanged(nameof(Comments));
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

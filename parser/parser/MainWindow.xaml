@@ -282,13 +282,29 @@
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.5*"/>
+                                <ColumnDefinition Width="0.8*"/>
                                 <ColumnDefinition Width="0.4*"/>
                                 <ColumnDefinition Width="0.8*"/>
                             </Grid.ColumnDefinitions>
                             <GroupBox Header="Нейронна мережа" Grid.Column="0" Margin="3,0,3,3">
                                 <Grid>
-                                    
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <!--First row begin-->
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Content="Файл для ШНМ:"/>
+                                        <TextBox Text="{Binding TrainFileLocation}" IsReadOnly="True" Margin="3" Grid.Column="1"/>
+                                        <Button Content="Тренувати" Command="{Binding StartTrainCommand}" Foreground="#FF0000" Margin="3" Grid.Column="2"/>
+                                    </Grid>
+                                    <!--First row end-->
                                 </Grid>
                             </GroupBox>
                             <GroupBox Header="Статистика" Grid.Column="1" Margin="3,0,3,3">
@@ -322,7 +338,7 @@
                                             <ColumnDefinition Width="3*"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Label Content="Файл коментарів:" HorizontalAlignment="Center"/>
+                                        <Label Content="Навчальна вибірка:" HorizontalAlignment="Center"/>
                                         <TextBox Text="{Binding TrainingInfo.CommentsFile}" IsReadOnly="True" Grid.Column="1" Margin="3"/>
                                         <Button Content="Вибрати файл" Grid.Column="2" Command="{Binding OpenCommentsFileCommand}" Margin="3" />
                                     </Grid>
@@ -337,9 +353,9 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Button Content="1. Нижній регістр" Command="{Binding ToLowerCaseCommand}" Margin="3"/>
-                                        <Button Content="2. Видалити символи" Command="{Binding RemoveSymbolsCommand}" Margin="3" Grid.Row="2"/>
-                                        <Button Content="3. Видалити шумові слова" Command="{Binding RemoveStopWordsCommand}" Margin="3"  Grid.Column="1"/>
+                                        <Button Content="1. Очистити" Command="{Binding CleanCommand}" Margin="3"/>
+                                        <Button Content="Згенерувати *.csv" Command="{Binding GenerateTrainFileCommand}" Margin="3" Grid.Row="2"/>
+                                        <Button Content="2. Видалити шумові слова" Command="{Binding RemoveStopWordsCommand}" Margin="3"  Grid.Column="1"/>
                                         <Button Content="Переглянути шумові слова" Command="{Binding ViewStopWordsCommand}" Margin="3" Grid.Row="2" Grid.Column="1"/>
 
                                         <Button Content="1" Command="{Binding }" Margin="3" Grid.Column="2"/>

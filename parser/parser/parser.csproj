@@ -87,6 +87,7 @@
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\MovieWindowViewModel.cs" />
     <Compile Include="ViewModels\ParsingViewModel.cs" />
+    <Compile Include="ViewModels\TestViewModel.cs" />
     <Compile Include="ViewModels\TrainingViewModel.cs" />
     <Compile Include="Windows\MovieWindow.xaml.cs">
       <DependentUpon>MovieWindow.xaml</DependentUpon>

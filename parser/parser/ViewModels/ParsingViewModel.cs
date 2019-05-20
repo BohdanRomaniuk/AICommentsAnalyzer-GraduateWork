@@ -72,40 +72,6 @@ namespace parser.ViewModels
             }
         }
 
-        //ProgressBar
-        #region progress bar
-        private int progress;
-        private int maximum;
-        private int errorsCount;
-        public int Progress
-        {
-            get => progress;
-            set
-            {
-                progress = value;
-                OnPropertyChanged(nameof(Progress));
-            }
-        }
-        public int Maximum
-        {
-            get => maximum;
-            set
-            {
-                maximum = value;
-                OnPropertyChanged(nameof(Maximum));
-            }
-        }
-        public int ErrorsCount
-        {
-            get => errorsCount;
-            set
-            {
-                errorsCount = value;
-                OnPropertyChanged(nameof(ErrorsCount));
-            }
-        }
-        #endregion progress bar
-
         //Parsing
         #region parsing
         private string title;
@@ -195,11 +161,7 @@ namespace parser.ViewModels
         public ICommand OpenFromBinaryCommand { get; }
         public ICommand SaveToBinaryCommand { get; }
 
-        
-
         public ICommand OpenSaveCommentsWindowCommand { get; }
-
-        public ICommand RunCMD { get; }
 
         public ParsingViewModel(TrainingInfoModel _trainingInfo)
         {
@@ -218,27 +180,6 @@ namespace parser.ViewModels
             OpenFromBinaryCommand = new Command(OpenFromBinary);
             SaveToBinaryCommand = new Command(SaveToBinary);
             OpenSaveCommentsWindowCommand = new Command(OpenSaveCommentsWindow);
-            RunCMD = new Command(Run);
-        }
-
-        private void Run(object parameter)
-        {
-            ProcessStartInfo start = new ProcessStartInfo();
-            start.FileName = "C:/Users/Bohdan/AppData/Local/Programs/Python/Python36/python.exe";
-            var cmd = "C:/tests.py";
-            var args = "";
-            start.Arguments = string.Format("{0}", cmd, args);
-            start.UseShellExecute = false;
-            start.RedirectStandardOutput = true;
-            start.CreateNoWindow = true;
-            using (Process process = Process.Start(start))
-            {
-                using (StreamReader reader = process.StandardOutput)
-                {
-                    string result = reader.ReadToEnd();
-                    MessageBox.Show(result);
-                }
-            }
         }
 
         private async void GetAllInfo(object parameter)
@@ -356,7 +297,7 @@ namespace parser.ViewModels
                                 for (int j = 0; j < commentAuthors.Count; ++j)
                                 {
                                     var date = commentDates[j].InnerText.GetDateTime();
-                                    var comment = new Comment(Convert.ToInt32(Regex.Match(commentTexts[j].Id,"[0-9]+")?.Value ?? "0"), commentAuthors[j].InnerText, commentTexts[j].InnerText, date);
+                                    var comment = new Comment(Convert.ToInt32(Regex.Match(commentTexts[j].Id, "[0-9]+")?.Value ?? "0"), commentAuthors[j].InnerText, commentTexts[j].InnerText, date);
                                     Comments.Add(comment);
                                     Movies[i].Comments.Add(comment);
                                 }
@@ -442,28 +383,18 @@ namespace parser.ViewModels
             }
         }
 
-        private async void SaveComments(object parameter)
+        private void SaveComments(object parameter)
         {
-            Microsoft.Win32.SaveFileDialog svd = new Microsoft.Win32.SaveFileDialog();
-            svd.Filter = $"{SavingFormat.Substring(2, SavingFormat.Length - 2)}({SavingFormat})|{SavingFormat}";
-            var separator = SavingFormat == "*.csv" ? ',' : '\t';
-            if (svd.ShowDialog() ?? true)
+            if(Comments.Count > 0)
             {
-                TrainingInfo.CommentsFile = svd.FileName;
-                using (StreamWriter fileStr = new StreamWriter(new FileStream(TrainingInfo.CommentsFile, FileMode.Create)))
+                Directory.CreateDirectory("parse");
+                var fileName = $"parse\\comments_{DateTime.Now.ToString().Replace(":", "").Replace(" ", "_")}.bin";
+                using (FileStream fileStr = new FileStream(Path.Combine(BaseDirectory, fileName), FileMode.Create))
                 {
-                    ErrorsCount = 0;
-                    Progress = 0;
-                    Maximum = To - From + 1;
-                    int fromIndex = Comments.Count - From;
-                    int toIndex = Comments.Count - To;
-                    for (int i = fromIndex; i >= toIndex; --i)
-                    {
-                        await fileStr.WriteLineAsync($"{Comments[i].CommentText}{separator}{Comments[i].Sentiment}");
-                        TrainingInfo.Comments.Add(Comments[i]);
-                        ++Progress;
-                    }
+                    BinaryFormatter binFormater = new BinaryFormatter();
+                    binFormater.Serialize(fileStr, Comments);
                 }
+                TrainingInfo.CommentsFile = Path.Combine(BaseDirectory, fileName);
             }
         }
     }
