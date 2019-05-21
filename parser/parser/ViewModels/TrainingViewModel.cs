@@ -71,12 +71,12 @@ namespace parser.ViewModels
         {
             ProcessStartInfo start = new ProcessStartInfo();
             start.FileName = "C:/Users/Bohdan/AppData/Local/Programs/Python/Python36/python.exe";
-            var cmd = "C:/test.py";
-            var args = "";
+            var cmd = $"\"{Path.Combine(BaseDirectory, "ai\\train.py")}\"";
+            var args = $"\"{Path.Combine(BaseDirectory, TrainFileLocation)}\"";
             start.Arguments = string.Format("{0} {1}", cmd, args);
             start.UseShellExecute = false;
             start.RedirectStandardOutput = true;
-            start.CreateNoWindow = true;
+            start.CreateNoWindow = false;
             using (Process process = Process.Start(start))
             {
                 using (StreamReader reader = process.StandardOutput)
@@ -86,8 +86,6 @@ namespace parser.ViewModels
                 }
             }
         }
-
-
 
         private void LoadStopWords(string fileName)
         {
@@ -153,7 +151,7 @@ namespace parser.ViewModels
                 {
                     ErrorsCount = 0;
                     Progress = 0;
-                    await fileStr.WriteLineAsync("id,text,sentiment");
+                    await fileStr.WriteLineAsync("id,review,sentiment");
                     foreach (var comment in CommonInfo.TrainComments)
                     {
                         await fileStr.WriteLineAsync($"{comment.Id},{comment.CommentText},{comment.Sentiment}");

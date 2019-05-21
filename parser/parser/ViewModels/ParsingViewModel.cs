@@ -161,7 +161,8 @@ namespace parser.ViewModels
         public ICommand OpenFromBinaryCommand { get; }
         public ICommand SaveToBinaryCommand { get; }
 
-        public ICommand OpenSaveCommentsWindowCommand { get; }
+        public ICommand OpenSaveTrainCommentsWindowCommand { get; }
+        public ICommand OpenSaveTestCommentsWindowCommand { get; }
 
         public ParsingViewModel(CommonInfoModel _commonInfo)
         {
@@ -179,7 +180,8 @@ namespace parser.ViewModels
             ShowMovieCommand = new Command(ShowMovie);
             OpenFromBinaryCommand = new Command(OpenFromBinary);
             SaveToBinaryCommand = new Command(SaveToBinary);
-            OpenSaveCommentsWindowCommand = new Command(OpenSaveCommentsWindow);
+            OpenSaveTrainCommentsWindowCommand = new Command(OpenSaveTrainCommentsWindow);
+            OpenSaveTestCommentsWindowCommand = new Command(OpenSaveTestCommentsWindow);
         }
 
         private async void GetAllInfo(object parameter)
@@ -370,31 +372,63 @@ namespace parser.ViewModels
             }
         }
 
-        private void OpenSaveCommentsWindow(object parameter)
+        private void OpenSaveTrainCommentsWindow(object parameter)
         {
             if (Comments.Count != 0)
             {
                 IsSavingMode = true;
                 Title = "Збереження коментарів";
-                StartCommand = new Command(SaveComments);
+                StartCommand = new Command(SaveTrainComments);
                 PagesWindow ppw = new PagesWindow(this);
                 ppw.Show();
-                ppw.Owner = ((MainWindow)System.Windows.Application.Current.MainWindow); ;
+                ppw.Owner = (MainWindow)System.Windows.Application.Current.MainWindow;
             }
         }
 
-        private void SaveComments(object parameter)
+        private void OpenSaveTestCommentsWindow(object parameter)
         {
-            if(Comments.Count > 0)
+            if (Comments.Count != 0)
+            {
+                IsSavingMode = true;
+                Title = "Збереження коментарів";
+                StartCommand = new Command(SaveTestComments);
+                PagesWindow ppw = new PagesWindow(this);
+                ppw.Show();
+                ppw.Owner = (MainWindow)System.Windows.Application.Current.MainWindow;
+            }
+        }
+
+        private void SaveTrainComments(object parameter)
+        {
+            if (Comments.Count > 0)
             {
                 Directory.CreateDirectory("parse");
-                var fileName = $"parse\\comments_{DateTime.Now.ToString().Replace(":", "").Replace(" ", "_")}.bin";
+                var fileName = $"parse\\train_comments_{DateTime.Now.ToString().Replace(":", "").Replace(" ", "_")}.bin";
+                int toId = Comments.Count - From;
+                int fromId = Comments.Count - To;
                 using (FileStream fileStr = new FileStream(Path.Combine(BaseDirectory, fileName), FileMode.Create))
                 {
                     BinaryFormatter binFormater = new BinaryFormatter();
-                    binFormater.Serialize(fileStr, Comments);
+                    binFormater.Serialize(fileStr, new ObservableCollection<Comment>(Comments.Skip(fromId).Take(toId - fromId + 1)));
                 }
                 CommonInfo.TrainFile = Path.Combine(BaseDirectory, fileName);
+            }
+        }
+
+        private void SaveTestComments(object parameter)
+        {
+            if (Comments.Count > 0)
+            {
+                Directory.CreateDirectory("parse");
+                var fileName = $"parse\\test_comments_{DateTime.Now.ToString().Replace(":", "").Replace(" ", "_")}.bin";
+                int toId = Comments.Count - From;
+                int fromId = Comments.Count - To;
+                using (FileStream fileStr = new FileStream(Path.Combine(BaseDirectory, fileName), FileMode.Create))
+                {
+                    BinaryFormatter binFormater = new BinaryFormatter();
+                    binFormater.Serialize(fileStr, new ObservableCollection<Comment>(Comments.Skip(fromId).Take(toId - fromId + 1)));
+                }
+                CommonInfo.TestFile = Path.Combine(BaseDirectory, fileName);
             }
         }
     }
