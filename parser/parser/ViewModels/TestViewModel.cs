@@ -15,15 +15,15 @@ namespace parser.ViewModels
 {
     public class TestViewModel: BaseViewModel
     {
-        private CommonInfoModel trainingInfo;
+        private CommonInfoModel commonInfo;
         private string testFileLocation;
 
         public CommonInfoModel CommonInfo
         {
-            get => trainingInfo;
+            get => commonInfo;
             set
             {
-                trainingInfo = value;
+                commonInfo = value;
                 OnPropertyChanged(nameof(CommonInfo));
             }
         }
@@ -72,6 +72,7 @@ namespace parser.ViewModels
             ProcessStartInfo start = new ProcessStartInfo();
             start.FileName = "C:/Users/Bohdan/AppData/Local/Programs/Python/Python36/python.exe";
             var cmd = $"\"{Path.Combine(BaseDirectory, "ai\\test.py")}\"";
+            TestFileLocation = "test\\comments_23.05.2019_234001.csv";
             var args = $"\"{Path.Combine(BaseDirectory, TestFileLocation)}\"";
             start.Arguments = string.Format("{0} {1}", cmd, args);
             start.UseShellExecute = false;
@@ -98,7 +99,7 @@ namespace parser.ViewModels
                     ErrorsCount = 0;
                     Progress = 0;
                     await fileStr.WriteLineAsync("id,review,sentiment");
-                    foreach (var comment in CommonInfo.TrainComments)
+                    foreach (var comment in CommonInfo.TestComments)
                     {
                         await fileStr.WriteLineAsync($"{comment.Id},{comment.CommentText},{comment.Sentiment}");
                         ++Progress;
@@ -110,7 +111,7 @@ namespace parser.ViewModels
         private void Clear(object parameter)
         {
             //To lower case & removing symbols
-            Maximum = CommonInfo.TrainComments.Count;
+            Maximum = CommonInfo.TestComments.Count;
             Progress = 0;
             foreach (Comment comment in CommonInfo.TestComments)
             {
@@ -163,7 +164,7 @@ namespace parser.ViewModels
 
         private void OpenCommentsFile(object parameter)
         {
-            CommonInfo.TrainComments.Clear();
+            CommonInfo.TestComments.Clear();
             Microsoft.Win32.OpenFileDialog ofd = new Microsoft.Win32.OpenFileDialog();
             ofd.Filter = "bin(*.bin)|*.bin";
             if (ofd.ShowDialog() ?? true)
@@ -174,7 +175,7 @@ namespace parser.ViewModels
 
         private void SelectAi(object parametr)
         {
-            CommonInfo.TrainComments.Clear();
+            CommonInfo.TestComments.Clear();
             Microsoft.Win32.OpenFileDialog ofd = new Microsoft.Win32.OpenFileDialog();
             ofd.Filter = "h5(*.h5)|*.h5";
             if (ofd.ShowDialog() ?? true)
