@@ -1,5 +1,7 @@
 ﻿using parser.Helpers;
 using parser.Models;
+using System;
+using System.Windows;
 using System.Windows.Input;
 
 namespace parser.ViewModels
@@ -8,6 +10,8 @@ namespace parser.ViewModels
     {
         public ICommand MarkAsPositiveCommand { get; }
         public ICommand MarkAsNegativeCommand { get; }
+        //Implementation are in inherited clases
+        public ICommand DeleteCommentCommand { get; protected set; }
 
         public AnalyzeCommentsViewModel()
         {
@@ -17,12 +21,26 @@ namespace parser.ViewModels
 
         private void MarkAsPositive(object parameter)
         {
-            (parameter as Comment).Sentiment = 1;
+            try
+            {
+                (parameter as Comment).Sentiment = 1;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void MarkAsNegative(object parameter)
         {
-            (parameter as Comment).Sentiment = 0;
+            try
+            {
+                (parameter as Comment).Sentiment = 0;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }

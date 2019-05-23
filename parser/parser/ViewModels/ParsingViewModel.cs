@@ -163,6 +163,7 @@ namespace parser.ViewModels
 
         public ICommand OpenSaveTrainCommentsWindowCommand { get; }
         public ICommand OpenSaveTestCommentsWindowCommand { get; }
+        public ICommand RemoveNonUkrainianCommand { get; }
 
         public ParsingViewModel(CommonInfoModel _commonInfo)
         {
@@ -182,6 +183,8 @@ namespace parser.ViewModels
             SaveToBinaryCommand = new Command(SaveToBinary);
             OpenSaveTrainCommentsWindowCommand = new Command(OpenSaveTrainCommentsWindow);
             OpenSaveTestCommentsWindowCommand = new Command(OpenSaveTestCommentsWindow);
+            DeleteCommentCommand = new Command(DeleteComment);
+            RemoveNonUkrainianCommand = new Command(RemoveNonUkrainian);
         }
 
         private async void GetAllInfo(object parameter)
@@ -260,20 +263,28 @@ namespace parser.ViewModels
 
                         var labels = doc.DocumentNode.SelectNodes("//div[@class='mi-label-desc']");
                         var infos = doc.DocumentNode.SelectNodes("//div[@class='mi-desc']");
+                        var poster = doc.DocumentNode.SelectSingleNode("//div[@class='m-img']/img")?.Attributes["src"]?.Value ?? "no-poster.jpg";
+                        var story = doc.DocumentNode.SelectSingleNode("//div[@class='m-desc full-text clearfix']")?.InnerHtml ?? "<div class=\"m-info\">";
+                        var imdb = doc.DocumentNode.SelectSingleNode("//div[@class='mr-item-rate']")?.InnerText?.Trim()?.Replace('.', ',') ?? "0";
+                        if (labels.Any(x => x.InnerText == "Добірка:"))
+                        {
+                            labels.Remove(labels.FirstOrDefault(x => x.InnerText == "Добірка:"));
+                        }
 
                         Movies[i].Director = StringHelper.GetPropertyValueByLabel("Режисер:", labels, infos);
                         Movies[i].Actors = StringHelper.GetPropertyValueByLabel("В ролях:", labels, infos);
                         Movies[i].Companies = StringHelper.GetPropertyValueByLabel("Кінокомпанія:", labels, infos);
                         Movies[i].Genre = StringHelper.GetPropertyValueByLabel("Жанр:", labels, infos);
                         Movies[i].Countries = StringHelper.GetPropertyValueByLabel("Країна:", labels, infos);
-                        var currentDesc = labels.FirstOrDefault(l => l.InnerText == "Рік:");
-                        Movies[i].Year = currentDesc != null ? Convert.ToInt32(infos[labels.IndexOf(currentDesc)]?.InnerText ?? "0") : 0;
                         Movies[i].Length = StringHelper.GetPropertyValueByLabel("Тривалість:", labels, infos, "00:00:00");
 
-                        Movies[i].ImdbRate = Convert.ToDouble(doc.DocumentNode.SelectSingleNode("//div[@class='mr-item-rate']")?.InnerText?.Trim()?.Replace('.', ',') ?? "0");
-                        Movies[i].Poster = doc.DocumentNode.SelectSingleNode("//div[@class='m-img']/img")?.Attributes["src"]?.Value ?? "no-poster.jpg";
-                        var story = doc.DocumentNode.SelectSingleNode("//div[@class='m-desc full-text clearfix']")?.InnerHtml ?? "<div class=\"m-info\">";
+                        Movies[i].ImdbRate = Convert.ToDouble(imdb);
                         Movies[i].Story = HtmlHelper.StripHtml(story.Substring(0, story.IndexOf("<div class=\"m-info\">"))).Replace("\t", "").Replace("\n", "").Replace("  ", " ");
+
+                        var currentDesc = labels.FirstOrDefault(l => l.InnerText == "Рік:");
+                        int.TryParse(infos[labels.IndexOf(currentDesc)]?.InnerText ?? "0", out var year);
+                        Movies[i].Year = year;
+                        Movies[i].Poster = poster;
                     });
 
                     //Getting comments
@@ -430,6 +441,49 @@ namespace parser.ViewModels
                 }
                 CommonInfo.TestFile = Path.Combine(BaseDirectory, fileName);
             }
+        }
+
+        private void DeleteComment(object parameter)
+        {
+            try
+            {
+                Comments.Remove(parameter as Comment);
+                var movie = Movies.FirstOrDefault(m => m.Comments.Contains(parameter as Comment));
+                if (movie == null)
+                {
+                    throw new Exception("Неможливо видалити коментар, не знайдено фільм до нього");
+                }
+                movie.Comments.Remove(parameter as Comment);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Помилка видалення", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void RemoveNonUkrainian(object parameter)
+        {
+            var count = 0;
+            for (int i = 0; i < Movies.Count; ++i)
+            {
+                for (int j = 0; j < Movies[i].Comments.Count; ++j)
+                {
+                    var comment = Movies[i].Comments[j];
+                    if (comment.CommentText.Contains('ы') || comment.CommentText.Contains('Ы') ||
+                       comment.CommentText.Contains('ё') || comment.CommentText.Contains('Ё') ||
+                       comment.CommentText.Contains('ъ') || comment.CommentText.Contains('Ъ') ||
+                       comment.CommentText.Contains('э') || comment.CommentText.Contains('Э') ||
+                       comment.CommentText.Contains(" c ") || comment.CommentText.Contains(" и ") ||
+                       comment.CommentText.Contains("фильм") || comment.CommentText.Contains("кино"))
+                    {
+                        Movies[i].Comments.Remove(comment);
+                        Comments.Remove(comment);
+                        j = (j == 0) ? j = 0 : j - 1;
+                        ++count;
+                    }
+                }
+            }
+            MessageBox.Show($"Видалено: {count} коментарів", "Видалення");
         }
     }
 }

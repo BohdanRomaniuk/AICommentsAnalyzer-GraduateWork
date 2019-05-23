@@ -6,7 +6,7 @@ using System.Windows.Media;
 namespace parser.Models
 {
     [Serializable]
-    public class Comment : INotifyPropertyChanged
+    public class Comment : INotifyPropertyChanged, IEquatable<Comment>
     {
         private int id;
         private string commentAuthor;
@@ -94,6 +94,11 @@ namespace parser.Models
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public bool Equals(Comment other)
+        {
+            return Id == other.Id;
         }
     }
 }

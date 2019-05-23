@@ -13,6 +13,7 @@ namespace parser.Models.Common
 
         private string trainFile;
         private string testFile;
+        private string savedAIFile;
 
         public string TrainFile
         {
@@ -42,12 +43,23 @@ namespace parser.Models.Common
             }
         }
 
+        public string SavedAIFile
+        {
+            get => savedAIFile;
+            set
+            {
+                savedAIFile = value;
+                OnPropertyChanged(nameof(SavedAIFile));
+            }
+        }
+
         public CommonInfoModel()
         {
             TrainComments = new ObservableCollection<Comment>();
             TestComments = new ObservableCollection<Comment>();
             TrainFile = string.Empty;
             TestFile = string.Empty;
+            SavedAIFile = string.Empty;
         }
 
         private void LoadTrainComments(string fileName)

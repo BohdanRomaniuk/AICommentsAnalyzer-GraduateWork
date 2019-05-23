@@ -157,7 +157,7 @@ namespace parser.Models
             set
             {
                 poster = value;
-                PosterFileName = CreatePosterFileName(Name + " (" + Year + ")", value);
+                PosterFileName = CreatePosterFileName(Name + " (" + Year.ToString() + ")", value);
                 OnPropertyChanged(nameof(Poster));
                 OnPropertyChanged(nameof(PosterFileName));
             }

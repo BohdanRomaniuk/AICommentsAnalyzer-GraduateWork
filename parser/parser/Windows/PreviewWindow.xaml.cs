@@ -5,7 +5,7 @@ namespace parser.Windows
 {
     public partial class PreviewWindow : Window
     {
-        public PreviewWindow(TrainingViewModel model)
+        public PreviewWindow(BaseViewModel model)
         {
             InitializeComponent();
             DataContext = model;

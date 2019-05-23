@@ -76,8 +76,8 @@
                                     <Label FontWeight="Bold" Content="{Binding Movies.Count}" Grid.Column="1"/>
                                     <Label Content="Усього коментарів:" Grid.Row="1"/>
                                     <Label FontWeight="Bold" Content="{Binding Comments.Count}" Grid.Row="1" Grid.Column="1"/>
-                                    <Label Content="Відображено:" Grid.Row="2"/>
-                                    <Label FontWeight="Bold" Foreground="Green" Content="" Grid.Row="2" Grid.Column="1"/>
+                                    <Label Content="Помилок:" Grid.Row="2"/>
+                                    <Label Content="{Binding ErrorsCount}" Foreground="Red" FontWeight="Bold" Grid.Row="2" Grid.Column="1"/>
                                 </Grid>
                             </GroupBox>
                             <GroupBox Header="Розділ" Grid.Column="2" Margin="3,0,3,3">
@@ -142,6 +142,7 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Button Content="Розпарсити фільми" Command="{Binding OpenParsingMovieWindowCommand}" Margin="3"/>
+                                        <Button Content="Видалити іншомовні" Command="{Binding RemoveNonUkrainianCommand}" Margin="3" Grid.Row="1"/>
                                         
                                         <Button Content="Відкрити з bin" Command="{Binding OpenFromBinaryCommand}" Margin="3"  Grid.Column="1"/>
                                         <Button Content="Зберегти в bin" Command="{Binding SaveToBinaryCommand}" Margin="3" Grid.Row="2" Grid.Column="1"/>
@@ -258,6 +259,7 @@
                                     <ListView.InputBindings>
                                         <KeyBinding Key="D1" Command="{Binding MarkAsPositiveCommand}" CommandParameter="{Binding SelectedItem, ElementName=comments}"/>
                                         <KeyBinding Key="D2" Command="{Binding MarkAsNegativeCommand}" CommandParameter="{Binding SelectedItem, ElementName=comments}"/>
+                                        <KeyBinding Key="D0" Command="{Binding DeleteCommentCommand}" CommandParameter="{Binding SelectedItem, ElementName=comments}"/>
                                     </ListView.InputBindings>
                                     <ListView.View>
                                         <GridView>
@@ -403,6 +405,7 @@
                                 <ListView.InputBindings>
                                     <KeyBinding Key="D1" Command="{Binding MarkAsPositiveCommand}" CommandParameter="{Binding SelectedItem, ElementName=comments_train}"/>
                                     <KeyBinding Key="D2" Command="{Binding MarkAsNegativeCommand}" CommandParameter="{Binding SelectedItem, ElementName=comments_train}"/>
+                                    <KeyBinding Key="D0" Command="{Binding DeleteCommentCommand}" CommandParameter="{Binding SelectedItem, ElementName=comments_train}"/>
                                 </ListView.InputBindings>
                                 <ListView.View>
                                     <GridView>
@@ -444,10 +447,18 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <Label Content="Натренована мережа:"/>
-                                        <TextBox Text="{Binding TrainFileLocation}" IsReadOnly="True" Margin="3" Grid.Column="1"/>
+                                        <TextBox Text="{Binding CommonInfo.SavedAIFile}" IsReadOnly="True" Margin="3" Grid.Column="1"/>
                                         <Button Content="Вибрати" Command="{Binding SelectAiCommand}" Margin="3" Grid.Column="2"/>
                                     </Grid>
                                     <Grid Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Content="Файл для ШНМ:"/>
+                                        <TextBox Text="{Binding TestFileLocation}" IsReadOnly="True" Margin="3" Grid.Column="1"/>
+                                    </Grid>
+                                    <Grid Grid.Row="2">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
@@ -500,15 +511,9 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Button Content="1. Очистити" Command="{Binding CleanCommand}" Margin="3"/>
-                                        <Button Content="Згенерувати *.csv" Command="{Binding GenerateTrainFileCommand}" Margin="3" Grid.Row="2"/>
+                                        <Button Content="Згенерувати *.csv" Command="{Binding GenerateTestFileCommand}" Margin="3" Grid.Row="2"/>
                                         <Button Content="2. Видалити шумові слова" Command="{Binding RemoveStopWordsCommand}" Margin="3"  Grid.Column="1"/>
                                         <Button Content="Переглянути шумові слова" Command="{Binding ViewStopWordsCommand}" Margin="3" Grid.Row="2" Grid.Column="1"/>
-
-                                        <Button Content="1" Command="{Binding }" Margin="3" Grid.Column="2"/>
-                                        <Button Content="2" Command="" Margin="3" Grid.Row="2" Grid.Column="2"/>
-
-                                        <Button Content="3" Command="" Margin="3" Grid.Column="3"/>
-                                        <Button Content="4" Command="" Margin="3" Grid.Row="1" Grid.Column="3"/>
                                     </Grid>
                                 </Grid>
                             </GroupBox>
@@ -554,12 +559,12 @@
                                 </ListView.InputBindings>
                                 <ListView.View>
                                     <GridView>
-                                        <GridViewColumn Header="№" Width="{Binding ElementName=comemnt_trainwidth1, Path=ActualWidth}" DisplayMemberBinding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListViewItem}}, Converter={StaticResource ListItemIdConverter}}" />
-                                        <GridViewColumn Header="Id" Width="{Binding ElementName=comemnt_trainwidth2, Path=ActualWidth}" DisplayMemberBinding="{Binding Id}" />
-                                        <GridViewColumn Header="Автор" Width="{Binding ElementName=comemnt_trainwidth3, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentAuthor}" />
-                                        <GridViewColumn Header="Текст" Width="{Binding ElementName=comemnt_trainwidth4, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentText}" />
-                                        <GridViewColumn Header="Дата" Width="{Binding ElementName=comemnt_trainwidth5, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentDate}" />
-                                        <GridViewColumn Header="Тональність" Width="{Binding ElementName=comemnt_trainwidth6, Path=ActualWidth}" DisplayMemberBinding="{Binding Sentiment}" />
+                                        <GridViewColumn Header="№" Width="{Binding ElementName=comemnt_testwidth1, Path=ActualWidth}" DisplayMemberBinding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListViewItem}}, Converter={StaticResource ListItemIdConverter}}" />
+                                        <GridViewColumn Header="Id" Width="{Binding ElementName=comemnt_testwidth2, Path=ActualWidth}" DisplayMemberBinding="{Binding Id}" />
+                                        <GridViewColumn Header="Автор" Width="{Binding ElementName=comemnt_testwidth3, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentAuthor}" />
+                                        <GridViewColumn Header="Текст" Width="{Binding ElementName=comemnt_testwidth4, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentText}" />
+                                        <GridViewColumn Header="Дата" Width="{Binding ElementName=comemnt_testwidth5, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentDate}" />
+                                        <GridViewColumn Header="Тональність" Width="{Binding ElementName=comemnt_testwidth6, Path=ActualWidth}" DisplayMemberBinding="{Binding Sentiment}" />
                                     </GridView>
                                 </ListView.View>
                             </ListView>

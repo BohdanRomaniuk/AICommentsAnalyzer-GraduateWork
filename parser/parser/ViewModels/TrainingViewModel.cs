@@ -3,15 +3,11 @@ using parser.Models;
 using parser.Models.Common;
 using parser.Windows;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -65,6 +61,7 @@ namespace parser.ViewModels
 
             GenerateTrainFileCommand = new Command(GenerateTrainFile);
             StartTrainCommand = new Command(StartTrain);
+            DeleteCommentCommand = new Command(DeleteComment);
         }
 
         private void StartTrain(object parameter)
@@ -168,7 +165,15 @@ namespace parser.ViewModels
             ofd.Filter = "bin(*.bin)|*.bin";
             if (ofd.ShowDialog() ?? true)
             {
-                CommonInfo.TrainFile =  ofd.FileName;
+                CommonInfo.TrainFile = ofd.FileName;
+            }
+        }
+
+        private void DeleteComment(object parameter)
+        {
+            if (!CommonInfo.TrainComments.Remove(parameter as Comment))
+            {
+                MessageBox.Show("Неможливо видалити коментар", "Помилка видалення", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
