@@ -189,7 +189,7 @@ namespace parser.ViewModels
 
         private async void GetAllInfo(object parameter)
         {
-            Movies.Clear();
+            //Movies.Clear();
             Progress = 0;
             Maximum = ToPage - FromPage + 1;
             HtmlWeb web = new HtmlWeb();
@@ -474,7 +474,8 @@ namespace parser.ViewModels
                        comment.CommentText.Contains('ъ') || comment.CommentText.Contains('Ъ') ||
                        comment.CommentText.Contains('э') || comment.CommentText.Contains('Э') ||
                        comment.CommentText.Contains(" c ") || comment.CommentText.Contains(" и ") ||
-                       comment.CommentText.Contains("фильм") || comment.CommentText.Contains("кино"))
+                       comment.CommentText.Contains("фильм") || comment.CommentText.Contains("кино") ||
+                       comment.CommentText.Contains("Фильм") || comment.CommentText.Contains("Кино"))
                     {
                         Movies[i].Comments.Remove(comment);
                         Comments.Remove(comment);

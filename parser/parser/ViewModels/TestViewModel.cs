@@ -50,6 +50,8 @@ namespace parser.ViewModels
         public ICommand RemoveStopWordsCommand { get; }
         public ICommand ViewStopWordsCommand { get; }
 
+        public ICommand LoadResultCommand { get; }
+
         public TestViewModel(CommonInfoModel _commonInfo)
         {
             CommonInfo = _commonInfo;
@@ -65,6 +67,7 @@ namespace parser.ViewModels
             GenerateTestFileCommand = new Command(GenerateTestFile);
             RemoveStopWordsCommand = new Command(RemoveStopWords);
             ViewStopWordsCommand = new Command(ViewStopWords);
+            LoadResultCommand = new Command(LoadResult);
         }
 
         private void StartTest(object parameter)
@@ -93,15 +96,22 @@ namespace parser.ViewModels
             if (CommonInfo.TestComments.Count > 0)
             {
                 Directory.CreateDirectory("test");
-                TestFileLocation = $"test\\comments_{DateTime.Now.ToString().Replace(":", "").Replace(" ", "_")}.csv";
+                int version = 1;
+                while (File.Exists(Path.Combine(BaseDirectory, $"train\\comments_{version}.tsv")))
+                {
+                    ++version;
+                }
+                TestFileLocation = $"test\\comments_{version}.tsv";
+
                 using (StreamWriter fileStr = new StreamWriter(new FileStream(Path.Combine(BaseDirectory, TestFileLocation), FileMode.Create)))
                 {
                     ErrorsCount = 0;
                     Progress = 0;
-                    await fileStr.WriteLineAsync("id,review,sentiment");
+                    var separator = '\t';
+                    await fileStr.WriteLineAsync($"id{separator}review");
                     foreach (var comment in CommonInfo.TestComments)
                     {
-                        await fileStr.WriteLineAsync($"{comment.Id},{comment.CommentText},{comment.Sentiment}");
+                        await fileStr.WriteLineAsync($"\"{comment.Id}\"{separator}\"{comment.CommentText}\"");
                         ++Progress;
                     }
                 }
@@ -181,6 +191,33 @@ namespace parser.ViewModels
             if (ofd.ShowDialog() ?? true)
             {
                 CommonInfo.SavedAIFile = ofd.FileName;
+            }
+        }
+
+        private async void LoadResult(object parameter)
+        {   
+            try
+            {
+                using (var stream = new StreamReader(new FileStream("D:/tresult.tsv", FileMode.Open)))
+                {
+                    await stream.ReadLineAsync();
+                    while(!stream.EndOfStream)
+                    {
+                        var line = await stream.ReadLineAsync();
+                        var lineValues = line.Split('\t');
+                        int.TryParse(lineValues[0].Replace("\"", string.Empty), out var id);
+                        int.TryParse(lineValues[2].Replace("\"", string.Empty), out var sentiment);
+                        var comment = CommonInfo.TestComments.FirstOrDefault(x => x.Id == id);
+                        if(comment!=null)
+                        {
+                            comment.Sentiment = sentiment;
+                        }
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
     }

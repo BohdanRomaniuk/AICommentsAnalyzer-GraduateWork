@@ -143,15 +143,22 @@ namespace parser.ViewModels
             if (CommonInfo.TrainComments.Count > 0)
             {
                 Directory.CreateDirectory("train");
-                TrainFileLocation = $"train\\comments_{DateTime.Now.ToString().Replace(":", "").Replace(" ", "_")}.csv";
+                int version = 1;
+                while(File.Exists(Path.Combine(BaseDirectory, $"train\\comments_{version}.tsv")))
+                {
+                    ++version;
+                }
+                TrainFileLocation = $"train\\comments_{version}.tsv";
+
                 using (StreamWriter fileStr = new StreamWriter(new FileStream(Path.Combine(BaseDirectory, TrainFileLocation), FileMode.Create)))
                 {
                     ErrorsCount = 0;
                     Progress = 0;
-                    await fileStr.WriteLineAsync("id,review,sentiment");
+                    var separator = '\t';
+                    await fileStr.WriteLineAsync($"id{separator}sentiment{separator}review");
                     foreach (var comment in CommonInfo.TrainComments)
                     {
-                        await fileStr.WriteLineAsync($"{comment.Id},{comment.CommentText},{comment.Sentiment}");
+                        await fileStr.WriteLineAsync($"\"{comment.Id}\"{separator}\"{comment.Sentiment}\"{separator}\"{comment.CommentText}\"");
                         ++Progress;
                     }
                 }

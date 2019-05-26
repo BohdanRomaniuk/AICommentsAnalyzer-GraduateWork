@@ -109,7 +109,7 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Button Visibility="Collapsed" Content="Оновити інформацію" Command="" Margin="3" IsEnabled="False" Foreground="Red"/>
+                                        <Button Content="Розпарсити фільми" Command="{Binding OpenParsingMovieWindowCommand}" Margin="3" Foreground="Green"/>
                                         <Button Content="Отримати інформацію" Command="{Binding GetAllInfoCommand}" Grid.Column="1" Margin="3"/>
                                     </Grid>
                                 </Grid>
@@ -514,6 +514,7 @@
                                         <Button Content="Згенерувати *.csv" Command="{Binding GenerateTestFileCommand}" Margin="3" Grid.Row="2"/>
                                         <Button Content="2. Видалити шумові слова" Command="{Binding RemoveStopWordsCommand}" Margin="3"  Grid.Column="1"/>
                                         <Button Content="Переглянути шумові слова" Command="{Binding ViewStopWordsCommand}" Margin="3" Grid.Row="2" Grid.Column="1"/>
+                                        <Button Content="Завантажити результат" Command="{Binding LoadResultCommand}" Grid.Column="2" Margin="3"/>
                                     </Grid>
                                 </Grid>
                             </GroupBox>
