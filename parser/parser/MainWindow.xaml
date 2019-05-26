@@ -322,8 +322,10 @@
                                     </Grid.ColumnDefinitions>
                                     <Label Content="Усього коментарів:"/>
                                     <Label FontWeight="Bold" Content="{Binding CommonInfo.TrainComments.Count}" Grid.Column="1"/>
-                                    <Label Content="Відображено:" Grid.Row="1"/>
-                                    <Label FontWeight="Bold" Foreground="Green" Content="{Binding CommonInfo.TrainComments.Count}" Grid.Row="1" Grid.Column="1"/>
+                                    <Label Content="Унікальних слів:" Grid.Row="1"/>
+                                    <Label FontWeight="Bold" Foreground="Green" Content="{Binding UniqueWordsCount}" Grid.Row="1" Grid.Column="1"/>
+                                    <Label Content="Сер. довжина комен.:" Grid.Row="2"/>
+                                    <Label FontWeight="Bold" Foreground="Green" Content="{Binding MeanWordsLength}" Grid.Row="2" Grid.Column="1"/>
                                 </Grid>
                             </GroupBox>
                             <GroupBox Header="Робота з коментарями" Grid.Column="3" Margin="3,0,3,3">
@@ -358,11 +360,10 @@
                                         <Button Content="2. Видалити шумові слова" Command="{Binding RemoveStopWordsCommand}" Margin="3"  Grid.Column="1"/>
                                         <Button Content="Переглянути шумові слова" Command="{Binding ViewStopWordsCommand}" Margin="3" Grid.Row="2" Grid.Column="1"/>
 
-                                        <Button Content="1" Command="{Binding }" Margin="3" Grid.Column="2"/>
-                                        <Button Content="2" Command="" Margin="3" Grid.Row="2" Grid.Column="2"/>
+                                        <Label Content="Макс. кількість слів" Grid.Column="2"/>
 
-                                        <Button Content="3" Command="" Margin="3" Grid.Column="3"/>
-                                        <Button Content="4" Command="" Margin="3" Grid.Row="1" Grid.Column="3"/>
+                                        <TextBox Text="{Binding MaxWordLength}" Grid.Column="3" Margin="3"/>
+                                        <Button Content="Видалити надлишок" Command="{Binding RemoveTextOverflowCommand}" Margin="3" Grid.Row="1" Grid.Column="3"/>
                                     </Grid>
                                 </Grid>
                             </GroupBox>
@@ -472,6 +473,7 @@
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
@@ -479,8 +481,10 @@
                                     </Grid.ColumnDefinitions>
                                     <Label Content="Усього коментарів:"/>
                                     <Label FontWeight="Bold" Content="{Binding CommonInfo.TestComments.Count}" Grid.Column="1"/>
-                                    <Label Content="Відображено:" Grid.Row="1"/>
-                                    <Label FontWeight="Bold" Foreground="Green" Content="{Binding CommonInfo.TestComments.Count}" Grid.Row="1" Grid.Column="1"/>
+                                    <Label Content="Унікальних слів:" Grid.Row="1"/>
+                                    <Label FontWeight="Bold" Foreground="Green" Content="{Binding UniqueWordsCount}" Grid.Row="1" Grid.Column="1"/>
+                                    <Label Content="Сер. довжина комен.:" Grid.Row="2"/>
+                                    <Label FontWeight="Bold" Foreground="Green" Content="{Binding MeanWordsLength}" Grid.Row="2" Grid.Column="1"/>
                                 </Grid>
                             </GroupBox>
                             <GroupBox Header="Робота з коментарями" Grid.Column="3" Margin="3,0,3,3">
@@ -514,7 +518,12 @@
                                         <Button Content="Згенерувати *.csv" Command="{Binding GenerateTestFileCommand}" Margin="3" Grid.Row="2"/>
                                         <Button Content="2. Видалити шумові слова" Command="{Binding RemoveStopWordsCommand}" Margin="3"  Grid.Column="1"/>
                                         <Button Content="Переглянути шумові слова" Command="{Binding ViewStopWordsCommand}" Margin="3" Grid.Row="2" Grid.Column="1"/>
-                                        <Button Content="Завантажити результат" Command="{Binding LoadResultCommand}" Grid.Column="2" Margin="3"/>
+                                        
+                                        <Label Content="Макс. кількість слів" Grid.Column="2"/>
+
+                                        <TextBox Text="{Binding MaxWordLength}" Grid.Column="3" Margin="3"/>
+                                        <Button Content="Видалити надлишок" Command="{Binding RemoveTextOverflowCommand}" Margin="3" Grid.Row="1" Grid.Column="3"/>
+                                        <Button Content="Завантажити результат" Command="{Binding LoadResultCommand}" Grid.Column="2" Grid.Row="1" Margin="3"/>
                                     </Grid>
                                 </Grid>
                             </GroupBox>
