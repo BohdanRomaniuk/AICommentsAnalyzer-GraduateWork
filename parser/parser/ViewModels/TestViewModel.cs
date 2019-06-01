@@ -14,7 +14,7 @@ using System.Windows.Input;
 
 namespace parser.ViewModels
 {
-    public class TestViewModel: BaseViewModel
+    public class TestViewModel : BaseViewModel
     {
         private CommonInfoModel commonInfo;
         private string testFileLocation;
@@ -75,7 +75,6 @@ namespace parser.ViewModels
         public ObservableCollection<string> StopWords { get; set; }
 
         public ICommand OpenCommentsFileCommand { get; }
-        public ICommand SelectAiCommand { get; }
 
         public ICommand StartTestCommand { get; }
 
@@ -84,15 +83,12 @@ namespace parser.ViewModels
         public ICommand RemoveStopWordsCommand { get; }
         public ICommand ViewStopWordsCommand { get; }
 
-        public ICommand LoadResultCommand { get; }
         public ICommand RemoveTextOverflowCommand { get; }
 
         public TestViewModel(CommonInfoModel _commonInfo)
         {
             CommonInfo = _commonInfo;
-            CommonInfo.SavedAIFile = "ai\\my_model.h5";
             OpenCommentsFileCommand = new Command(OpenCommentsFile);
-            SelectAiCommand = new Command(SelectAi);
             StartTestCommand = new Command(StartTest);
 
             StopWords = new ObservableCollection<string>();
@@ -102,28 +98,59 @@ namespace parser.ViewModels
             GenerateTestFileCommand = new Command(GenerateTestFile);
             RemoveStopWordsCommand = new Command(RemoveStopWords);
             ViewStopWordsCommand = new Command(ViewStopWords);
-            LoadResultCommand = new Command(LoadResult);
             RemoveTextOverflowCommand = new Command(RemoveTextOverflow);
+            MaxWordLength = 130;
         }
 
-        private void StartTest(object parameter)
+        private async void StartTest(object parameter)
         {
-            ProcessStartInfo start = new ProcessStartInfo();
-            start.FileName = "C:/Users/Bohdan/AppData/Local/Programs/Python/Python36/python.exe";
-            var cmd = $"\"{Path.Combine(BaseDirectory, "ai\\test.py")}\"";
-            TestFileLocation = "test\\comments_23.05.2019_234001.csv";
-            var args = $"\"{Path.Combine(BaseDirectory, TestFileLocation)}\"";
-            start.Arguments = string.Format("{0} {1}", cmd, args);
-            start.UseShellExecute = false;
-            start.RedirectStandardOutput = true;
-            start.CreateNoWindow = false;
-            using (Process process = Process.Start(start))
+            try
             {
-                using (StreamReader reader = process.StandardOutput)
+
+
+                ProcessStartInfo start = new ProcessStartInfo();
+                start.FileName = "C:/Users/Bohdan/AppData/Local/Programs/Python/Python36/python.exe";
+                var cmd = $"\"{Path.Combine(BaseDirectory, "ai\\test.py")}\"";
+                var args = $"\"{Path.Combine(BaseDirectory, TestFileLocation)}\"";
+                start.Arguments = string.Format("{0} {1}", cmd, args);
+                start.UseShellExecute = false;
+                start.RedirectStandardOutput = true;
+                start.CreateNoWindow = false;
+                string result = string.Empty;
+                using (Process process = Process.Start(start))
                 {
-                    string result = reader.ReadToEnd();
-                    MessageBox.Show(result);
+                    using (StreamReader reader = process.StandardOutput)
+                    {
+                        result = reader.ReadToEnd();
+                    }
                 }
+                if (string.IsNullOrEmpty(result))
+                {
+                    throw new Exception("Виникла невідома помилка під час тестування!");
+                }
+                CommonInfo.TestComments.Clear();
+                CommonInfo.LoadTestComments($"parse/{CommonInfo.TestFile}");
+                using (var stream = new StreamReader(new FileStream("test/result.tsv", FileMode.Open)))
+                {
+                    await stream.ReadLineAsync();
+                    while (!stream.EndOfStream)
+                    {
+                        var line = await stream.ReadLineAsync();
+                        var lineValues = line.Split('\t');
+                        int.TryParse(lineValues[0].Replace("\"", string.Empty), out var id);
+                        int.TryParse(lineValues[1].Replace("\"", string.Empty), out var sentiment);
+                        var comment = CommonInfo.TestComments.FirstOrDefault(x => x.Id == id);
+                        if (comment != null)
+                        {
+                            comment.Sentiment = sentiment;
+                        }
+                    }
+                }
+                MessageBox.Show("Тестування завершено", "Інформація", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -143,13 +170,19 @@ namespace parser.ViewModels
                 {
                     ErrorsCount = 0;
                     Progress = 0;
+                    int count = 0;
                     var separator = '\t';
                     await fileStr.WriteLineAsync($"id{separator}review");
                     foreach (var comment in CommonInfo.TestComments)
                     {
-                        await fileStr.WriteLineAsync($"\"{comment.Id}\"{separator}\"{comment.CommentText}\"");
+                        if (!string.IsNullOrEmpty(comment.CommentText))
+                        {
+                            await fileStr.WriteLineAsync($"\"{comment.Id}\"{separator}\"{comment.CommentText}\"");
+                            ++count;
+                        }
                         ++Progress;
                     }
+                    MessageBox.Show($"Збережено {count} коментарів, {CommonInfo.TestComments.Count - count} вилучено", "Інформація", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
         }
@@ -223,44 +256,6 @@ namespace parser.ViewModels
             if (ofd.ShowDialog() ?? true)
             {
                 CommonInfo.TestFile = ofd.FileName;
-            }
-        }
-
-        private void SelectAi(object parametr)
-        {
-            CommonInfo.TestComments.Clear();
-            Microsoft.Win32.OpenFileDialog ofd = new Microsoft.Win32.OpenFileDialog();
-            ofd.Filter = "h5(*.h5)|*.h5";
-            if (ofd.ShowDialog() ?? true)
-            {
-                CommonInfo.SavedAIFile = ofd.FileName;
-            }
-        }
-
-        private async void LoadResult(object parameter)
-        {   
-            try
-            {
-                using (var stream = new StreamReader(new FileStream("D:/tresult.tsv", FileMode.Open)))
-                {
-                    await stream.ReadLineAsync();
-                    while(!stream.EndOfStream)
-                    {
-                        var line = await stream.ReadLineAsync();
-                        var lineValues = line.Split('\t');
-                        int.TryParse(lineValues[0].Replace("\"", string.Empty), out var id);
-                        int.TryParse(lineValues[2].Replace("\"", string.Empty), out var sentiment);
-                        var comment = CommonInfo.TestComments.FirstOrDefault(x => x.Id == id);
-                        if(comment!=null)
-                        {
-                            comment.Sentiment = sentiment;
-                        }
-                    }
-                }
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show(ex.Message);
             }
         }
 

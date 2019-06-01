@@ -199,12 +199,18 @@ namespace parser.ViewModels
                     ErrorsCount = 0;
                     Progress = 0;
                     var separator = '\t';
+                    int count = 0;
                     await fileStr.WriteLineAsync($"id{separator}sentiment{separator}review");
                     foreach (var comment in CommonInfo.TrainComments)
                     {
-                        await fileStr.WriteLineAsync($"\"{comment.Id}\"{separator}\"{comment.Sentiment}\"{separator}\"{comment.CommentText}\"");
+                        if (!string.IsNullOrEmpty(comment.CommentText))
+                        {
+                            ++count;
+                            await fileStr.WriteLineAsync($"\"{comment.Id}\"{separator}\"{comment.Sentiment}\"{separator}\"{comment.CommentText}\"");
+                        }
                         ++Progress;
                     }
+                    MessageBox.Show($"Збережено {count} коментарів, {CommonInfo.TrainComments.Count - count} вилучено", "Інформація", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
         }
