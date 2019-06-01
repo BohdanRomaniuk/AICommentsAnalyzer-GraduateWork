@@ -306,7 +306,32 @@
                                         <TextBox Text="{Binding TrainFileLocation}" IsReadOnly="True" Margin="3" Grid.Column="1"/>
                                         <Button Content="Тренувати" Command="{Binding StartTrainCommand}" Foreground="#FF0000" Margin="3" Grid.Column="2"/>
                                     </Grid>
-                                    <!--First row end-->
+                                    <Grid Grid.Row="1">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Content="Унікальних слів:"/>
+                                        <TextBox Text="19000" Grid.Column="1" Margin="3"/>
+                                        <Label Content="Макс. довж. слова:" Grid.Row="1"/>
+                                        <TextBox Text="130" Grid.Row="1" Grid.Column="1" Margin="3"/>
+                                        <Label Content="Розмір слова:" Grid.Column="2"/>
+                                        <TextBox Text="128" Grid.Column="3" Margin="3"/>
+                                        <Label Content="Тестових даних(%):" Grid.Row="1" Grid.Column="2"/>
+                                        <TextBox Text="5" Grid.Row="1" Grid.Column="3" Margin="3"/>
+                                        <Label Content="Циклів навчання:" Grid.Column="4"/>
+                                        <TextBox Text="3" Grid.Column="5" Margin="3"/>
+                                        <Label Content="Крок циклу:" Grid.Row="1" Grid.Column="4"/>
+                                        <TextBox Text="100" Grid.Row="1" Grid.Column="5" Margin="3"/>
+                                    </Grid>
                                 </Grid>
                             </GroupBox>
                             <GroupBox Header="Статистика" Grid.Column="1" Margin="3,0,3,3">
@@ -360,7 +385,7 @@
                                         <Button Content="2. Видалити шумові слова" Command="{Binding RemoveStopWordsCommand}" Margin="3"  Grid.Column="1"/>
                                         <Button Content="Переглянути шумові слова" Command="{Binding ViewStopWordsCommand}" Margin="3" Grid.Row="2" Grid.Column="1"/>
 
-                                        <Label Content="Макс. кількість слів" Grid.Column="2"/>
+                                        <Label Content="Макс. кількість слів:" Grid.Column="2" HorizontalAlignment="Right" />
 
                                         <TextBox Text="{Binding MaxWordLength}" Grid.Column="3" Margin="3"/>
                                         <Button Content="Видалити надлишок" Command="{Binding RemoveTextOverflowCommand}" Margin="3" Grid.Row="1" Grid.Column="3"/>
@@ -445,16 +470,18 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <Label Content="Файл для ШНМ:"/>
-                                        <TextBox Text="{Binding TestFileLocation}" IsReadOnly="True" Margin="3" Grid.Column="1"/>
+                                        <TextBox Text="{Binding TestFileLocation}" IsReadOnly="True"  Grid.Column="1" Margin="3"/>
+                                        <Button Content="Тестувати" Command="{Binding StartTestCommand}" Foreground="Green" Margin="3" Grid.Column="2"/>
                                     </Grid>
-                                    <Grid Grid.Row="2">
+                                    <Grid Grid.Row="3">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <Button Content="Проаналізувати коментарі" Command="{Binding StartTestCommand}" Foreground="Green" Margin="3" Grid.Column="1"/>
+                                        <Button Content="Ручне тестування" Command="{Binding OpenManualTestWindowCommand}" Foreground="Green" Margin="3" Grid.Column="1"/>
                                     </Grid>
                                 </Grid>
                             </GroupBox>

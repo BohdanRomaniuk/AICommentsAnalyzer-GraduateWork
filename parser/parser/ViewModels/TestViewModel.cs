@@ -75,15 +75,13 @@ namespace parser.ViewModels
         public ObservableCollection<string> StopWords { get; set; }
 
         public ICommand OpenCommentsFileCommand { get; }
-
         public ICommand StartTestCommand { get; }
-
         public ICommand CleanCommand { get; }
         public ICommand GenerateTestFileCommand { get; }
         public ICommand RemoveStopWordsCommand { get; }
         public ICommand ViewStopWordsCommand { get; }
-
         public ICommand RemoveTextOverflowCommand { get; }
+        public ICommand OpenManualTestWindowCommand { get; }
 
         public TestViewModel(CommonInfoModel _commonInfo)
         {
@@ -99,6 +97,7 @@ namespace parser.ViewModels
             RemoveStopWordsCommand = new Command(RemoveStopWords);
             ViewStopWordsCommand = new Command(ViewStopWords);
             RemoveTextOverflowCommand = new Command(RemoveTextOverflow);
+            OpenManualTestWindowCommand = new Command(OpenManualTestWindow);
             MaxWordLength = 130;
         }
 
@@ -106,8 +105,6 @@ namespace parser.ViewModels
         {
             try
             {
-
-
                 ProcessStartInfo start = new ProcessStartInfo();
                 start.FileName = "C:/Users/Bohdan/AppData/Local/Programs/Python/Python36/python.exe";
                 var cmd = $"\"{Path.Combine(BaseDirectory, "ai\\test.py")}\"";
@@ -244,8 +241,15 @@ namespace parser.ViewModels
             {
                 PreviewWindow tw = new PreviewWindow(this);
                 tw.Show();
-                tw.Owner = ((MainWindow)System.Windows.Application.Current.MainWindow);
+                tw.Owner = (MainWindow)Application.Current.MainWindow;
             }
+        }
+
+        private void OpenManualTestWindow(object parameter)
+        {
+            ManualTestWindow window = new ManualTestWindow();
+            window.Show();
+            window.Owner = (MainWindow)Application.Current.MainWindow;
         }
 
         private void OpenCommentsFile(object parameter)

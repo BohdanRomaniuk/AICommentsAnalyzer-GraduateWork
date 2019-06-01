@@ -165,6 +165,8 @@ namespace parser.ViewModels
         public ICommand OpenSaveTestCommentsWindowCommand { get; }
         public ICommand RemoveNonUkrainianCommand { get; }
 
+        public ICommand LoadResultCommand { get; }
+
         public ParsingViewModel(CommonInfoModel _commonInfo)
         {
             CommonInfo = _commonInfo;
@@ -185,6 +187,7 @@ namespace parser.ViewModels
             OpenSaveTestCommentsWindowCommand = new Command(OpenSaveTestCommentsWindow);
             DeleteCommentCommand = new Command(DeleteComment);
             RemoveNonUkrainianCommand = new Command(RemoveNonUkrainian);
+            LoadResultCommand = new Command(LoadResult);
         }
 
         private async void GetAllInfo(object parameter)
@@ -485,6 +488,33 @@ namespace parser.ViewModels
                 }
             }
             MessageBox.Show($"Видалено: {count} коментарів", "Видалення");
+        }
+
+        private async void LoadResult(object parameter)
+        {
+            try
+            {
+                using (var stream = new StreamReader(new FileStream("test/result.tsv", FileMode.Open)))
+                {
+                    await stream.ReadLineAsync();
+                    while (!stream.EndOfStream)
+                    {
+                        var line = await stream.ReadLineAsync();
+                        var lineValues = line.Split('\t');
+                        int.TryParse(lineValues[0].Replace("\"", string.Empty), out var id);
+                        int.TryParse(lineValues[1].Replace("\"", string.Empty), out var sentiment);
+                        var comment = Comments.FirstOrDefault(x => x.Id == id);
+                        if (comment != null)
+                        {
+                            comment.Sentiment = sentiment;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }
