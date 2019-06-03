@@ -21,8 +21,7 @@
                 <Separator />
                 <MenuItem Header="Exit" Command="" CommandParameter=""/>
             </MenuItem>
-            <MenuItem Header="БД" Command=""/>
-            <MenuItem Header="Налаштування" Command=""/>
+            <MenuItem Header="Текст" Command=""/>
             <MenuItem Header="Допомога" Command=""/>
         </Menu>
         <Grid DockPanel.Dock="Bottom" Background="#FFF0F0F0">

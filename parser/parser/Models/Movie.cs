@@ -171,14 +171,11 @@ namespace parser.Models
                 OnPropertyChanged(nameof(PosterFileName));
             }
         }
-        public ObservableCollection<Genre> MovieGenres { get; set; }
-        public ObservableCollection<Country> MovieCountries { get; set; }
+
         public ObservableCollection<Comment> Comments { get; set; }
 
         public Movie()
         {
-            MovieGenres = new ObservableCollection<Genre>();
-            MovieCountries = new ObservableCollection<Country>();
             Comments = new ObservableCollection<Comment>();
         }
 
@@ -198,8 +195,6 @@ namespace parser.Models
             Poster = _poster;
             PosterFileName = _posterFileName;
 
-            MovieGenres = new ObservableCollection<Genre>();
-            MovieCountries = new ObservableCollection<Country>();
             Comments = new ObservableCollection<Comment>();
         }
 

@@ -76,8 +76,6 @@
     <Compile Include="Helpers\Command.cs" />
     <Compile Include="Helpers\StringHelper.cs" />
     <Compile Include="Helpers\HtmlHelper.cs" />
-    <Compile Include="Models\Country.cs" />
-    <Compile Include="Models\Genre.cs" />
     <Compile Include="Models\Json\CommentResponse.cs" />
     <Compile Include="Models\Common\CommonInfoModel.cs" />
     <Compile Include="ViewModels\Base\AnalyzeCommentsViewModel.cs" />

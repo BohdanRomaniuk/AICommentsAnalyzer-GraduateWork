@@ -123,7 +123,7 @@
                     </ListView.Resources>
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="№" Width="{Binding Id}" />
+                            <GridViewColumn Header="№" Width="{Binding ElementName=comemntwidth1, Path=ActualWidth}" DisplayMemberBinding="{Binding Id}" />
                             <GridViewColumn Header="Автор" Width="{Binding ElementName=comemntwidth2, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentAuthor}" />
                             <GridViewColumn Header="Текст" Width="{Binding ElementName=comemntwidth3, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentText}" />
                             <GridViewColumn Header="Дата" Width="{Binding ElementName=comemntwidth4, Path=ActualWidth}" DisplayMemberBinding="{Binding CommentDate}" />

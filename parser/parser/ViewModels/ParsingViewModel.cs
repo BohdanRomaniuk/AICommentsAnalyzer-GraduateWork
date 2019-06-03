@@ -27,7 +27,6 @@ namespace parser.ViewModels
         private int fromPage;
         private int toPage;
         private bool isSavingMode;
-        private string savingFormat;
 
         public bool IsMoviesMode
         {
@@ -121,21 +120,10 @@ namespace parser.ViewModels
             {
                 isSavingMode = value;
                 OnPropertyChanged(nameof(IsSavingMode));
-                OnPropertyChanged(nameof(IsSavingFormatVisible));
                 OnPropertyChanged(nameof(IsSleepTimeVisible));
             }
         }
-        public Visibility IsSavingFormatVisible => IsSavingMode ? Visibility.Visible : Visibility.Collapsed;
         public Visibility IsSleepTimeVisible => !IsSavingMode ? Visibility.Visible : Visibility.Collapsed;
-        public string SavingFormat
-        {
-            get => savingFormat;
-            set
-            {
-                savingFormat = value;
-                OnPropertyChanged(nameof(SavingFormat));
-            }
-        }
         #endregion
 
         public ObservableCollection<Movie> Movies { get; set; }
@@ -175,7 +163,6 @@ namespace parser.ViewModels
             FromPage = 1;
             ToPage = 1;
             IsSavingMode = false;
-            SavingFormat = "*.csv";
             Movies = new ObservableCollection<Movie>();
             Comments = new ObservableCollection<Comment>();
             GetAllInfoCommand = new Command(GetAllInfo);
@@ -482,7 +469,7 @@ namespace parser.ViewModels
                     {
                         Movies[i].Comments.Remove(comment);
                         Comments.Remove(comment);
-                        j = (j == 0) ? j = 0 : j - 1;
+                        --j;
                         ++count;
                     }
                 }

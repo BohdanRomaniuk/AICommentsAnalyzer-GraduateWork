@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:parser.Windows"
         mc:Ignorable="d"
-        Height="170" Width="260" Title="{Binding Title}" Icon="../bot.ico">
+        Height="160" Width="260" Title="{Binding Title}" Icon="../bot.ico">
     <StackPanel>
         <Grid>
             <Grid.ColumnDefinitions>
@@ -30,20 +30,6 @@
             </Grid.ColumnDefinitions>
             <Label Content="Затримка (мс)" />
             <TextBox Text="{Binding Path=SleepTime, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Margin="3"/>
-        </Grid>
-        <Grid Visibility="{Binding IsSavingFormatVisible}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label Content="Формат" />
-            <ComboBox SelectedValue="{Binding SavingFormat}" 
-                  SelectedValuePath="Content"
-                  Grid.Column="1" 
-                  Margin="3">
-                <ComboBoxItem Content="*.csv" />
-                <ComboBoxItem Content="*.tsv" />
-            </ComboBox>
         </Grid>
         <Grid>
             <Button Content="Розпочати" Command="{Binding StartCommand}" Margin="3"/>
