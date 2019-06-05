@@ -21,6 +21,10 @@ namespace parser.ViewModels
         private int uniqueWordsCount;
         private int meanWordsLength;
         private int maxWordLength;
+        private int embededSize;
+        private int validationSplit;
+        private int epochs;
+        private int batchSize;
 
         public CommonInfoModel CommonInfo
         {
@@ -72,6 +76,46 @@ namespace parser.ViewModels
             }
         }
 
+        public int EmbededSize
+        {
+            get => embededSize;
+            set
+            {
+                embededSize = value;
+                OnPropertyChanged(nameof(EmbededSize));
+            }
+        }
+
+        public int ValidationSplit
+        {
+            get => validationSplit;
+            set
+            {
+                validationSplit = value;
+                OnPropertyChanged(nameof(ValidationSplit));
+            }
+        }
+
+        public int Epochs
+        {
+            get => epochs;
+            set
+            {
+                epochs = value;
+                OnPropertyChanged(nameof(Epochs));
+            }
+        }
+
+        public int BatchSize
+        {
+            get => batchSize;
+            set
+            {
+                batchSize = value;
+                OnPropertyChanged(nameof(BatchSize));
+            }
+        }
+
         public ObservableCollection<string> StopWords { get; set; }
 
         public ICommand OpenCommentsFileCommand { get; }
@@ -99,6 +143,10 @@ namespace parser.ViewModels
             DeleteCommentCommand = new Command(DeleteComment);
             RemoveTextOverflowCommand = new Command(RemoveTextOverflow);
             MaxWordLength = 130;
+            EmbededSize = 128;
+            ValidationSplit = 5;
+            Epochs = 3;
+            BatchSize = 100;
         }
 
         private void StartTrain(object parameter)
@@ -108,8 +156,8 @@ namespace parser.ViewModels
                 ProcessStartInfo start = new ProcessStartInfo();
                 start.FileName = "C:/Users/Bohdan/AppData/Local/Programs/Python/Python36/python.exe";
                 var cmd = $"\"{Path.Combine(BaseDirectory, "ai\\train.py")}\"";
-                var args = $"\"{Path.Combine(BaseDirectory, TrainFileLocation)}\"";
-                start.Arguments = string.Format("{0} {1}", cmd, args);
+                var args = $"\"{Path.Combine(BaseDirectory, TrainFileLocation)}\" {UniqueWordsCount} {MaxWordLength} {EmbededSize} {Epochs} {BatchSize} {ValidationSplit}";
+                start.Arguments = $"{cmd} {args}";
                 start.UseShellExecute = false;
                 start.RedirectStandardOutput = false;
                 start.CreateNoWindow = false;
