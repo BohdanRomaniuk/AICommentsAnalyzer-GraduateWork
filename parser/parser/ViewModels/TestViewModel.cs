@@ -111,19 +111,16 @@ namespace parser.ViewModels
                 var args = $"\"{Path.Combine(BaseDirectory, TestFileLocation)}\"";
                 start.Arguments = string.Format("{0} {1}", cmd, args);
                 start.UseShellExecute = false;
-                start.RedirectStandardOutput = true;
-                start.CreateNoWindow = false;
-                string result = string.Empty;
+                start.RedirectStandardOutput = false;
+                start.CreateNoWindow = false; ;
                 using (Process process = Process.Start(start))
                 {
-                    using (StreamReader reader = process.StandardOutput)
+                    process.WaitForExit();
+                    if (process.ExitCode != 0)
                     {
-                        result = reader.ReadToEnd();
+                        process.Close();
+                        throw new Exception("Виникла невідома помилка під час тестування!");
                     }
-                }
-                if (string.IsNullOrEmpty(result))
-                {
-                    throw new Exception("Виникла невідома помилка під час тестування!");
                 }
                 CommonInfo.TestComments.Clear();
                 CommonInfo.LoadTestComments($"parse/{CommonInfo.TestFile}");

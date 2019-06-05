@@ -380,7 +380,7 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Button Content="1. Очистити" Command="{Binding CleanCommand}" Margin="3"/>
-                                        <Button Content="Згенерувати *.csv" Command="{Binding GenerateTrainFileCommand}" Margin="3" Grid.Row="2"/>
+                                        <Button Content="3. Згенерувати *.tsv" Command="{Binding GenerateTrainFileCommand}" Margin="3" Grid.Row="2"/>
                                         <Button Content="2. Видалити шумові слова" Command="{Binding RemoveStopWordsCommand}" Margin="3"  Grid.Column="1"/>
                                         <Button Content="Переглянути шумові слова" Command="{Binding ViewStopWordsCommand}" Margin="3" Grid.Row="2" Grid.Column="1"/>
 
@@ -531,11 +531,11 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Button Content="1. Очистити" Command="{Binding CleanCommand}" Margin="3"/>
-                                        <Button Content="Згенерувати *.csv" Command="{Binding GenerateTestFileCommand}" Margin="3" Grid.Row="2"/>
+                                        <Button Content="3. Згенерувати *.tsv" Command="{Binding GenerateTestFileCommand}" Margin="3" Grid.Row="2"/>
                                         <Button Content="2. Видалити шумові слова" Command="{Binding RemoveStopWordsCommand}" Margin="3"  Grid.Column="1"/>
                                         <Button Content="Переглянути шумові слова" Command="{Binding ViewStopWordsCommand}" Margin="3" Grid.Row="2" Grid.Column="1"/>
-                                        
-                                        <Label Content="Макс. кількість слів" Grid.Column="2"/>
+
+                                        <Label Content="Макс. кількість слів" Grid.Column="2" HorizontalAlignment="Right" />
 
                                         <TextBox Text="{Binding MaxWordLength}" Grid.Column="3" Margin="3"/>
                                         <Button Content="Видалити надлишок" Command="{Binding RemoveTextOverflowCommand}" Margin="3" Grid.Row="1" Grid.Column="3"/>

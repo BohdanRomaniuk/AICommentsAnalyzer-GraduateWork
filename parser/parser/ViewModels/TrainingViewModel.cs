@@ -103,21 +103,30 @@ namespace parser.ViewModels
 
         private void StartTrain(object parameter)
         {
-            ProcessStartInfo start = new ProcessStartInfo();
-            start.FileName = "C:/Users/Bohdan/AppData/Local/Programs/Python/Python36/python.exe";
-            var cmd = $"\"{Path.Combine(BaseDirectory, "ai\\train.py")}\"";
-            var args = $"\"{Path.Combine(BaseDirectory, TrainFileLocation)}\"";
-            start.Arguments = string.Format("{0} {1}", cmd, args);
-            start.UseShellExecute = false;
-            start.RedirectStandardOutput = true;
-            start.CreateNoWindow = false;
-            using (Process process = Process.Start(start))
+            try
             {
-                using (StreamReader reader = process.StandardOutput)
+                ProcessStartInfo start = new ProcessStartInfo();
+                start.FileName = "C:/Users/Bohdan/AppData/Local/Programs/Python/Python36/python.exe";
+                var cmd = $"\"{Path.Combine(BaseDirectory, "ai\\train.py")}\"";
+                var args = $"\"{Path.Combine(BaseDirectory, TrainFileLocation)}\"";
+                start.Arguments = string.Format("{0} {1}", cmd, args);
+                start.UseShellExecute = false;
+                start.RedirectStandardOutput = false;
+                start.CreateNoWindow = false;
+                using (Process process = Process.Start(start))
                 {
-                    string result = reader.ReadToEnd();
-                    MessageBox.Show(result);
+                    process.WaitForExit();
+                    if (process.ExitCode != 0)
+                    {
+                        process.Close();
+                        throw new Exception("Виникла невідома помилка під час тренування!");
+                    }
+                    MessageBox.Show("Успішно натреновано", "Інформація", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
