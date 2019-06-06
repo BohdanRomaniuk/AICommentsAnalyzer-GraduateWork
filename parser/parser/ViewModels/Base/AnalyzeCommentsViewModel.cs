@@ -10,6 +10,7 @@ namespace parser.ViewModels
     {
         public ICommand MarkAsPositiveCommand { get; }
         public ICommand MarkAsNegativeCommand { get; }
+
         //Implementation are in inherited clases
         public ICommand DeleteCommentCommand { get; protected set; }
 

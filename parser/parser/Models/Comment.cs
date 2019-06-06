@@ -12,7 +12,7 @@ namespace parser.Models
         private string commentAuthor;
         private string commentText;
         private DateTime commentDate;
-        private int sentiment;
+        private double sentiment;
 
         public int Id
         {
@@ -50,7 +50,7 @@ namespace parser.Models
                 OnPropertyChanged(nameof(CommentDate));
             }
         }
-        public int Sentiment
+        public double Sentiment
         {
             get => sentiment;
             set
@@ -67,7 +67,7 @@ namespace parser.Models
         {
         }
 
-        public Comment(int _id, string _author, string _text, DateTime _date, int _sentiment = 0)
+        public Comment(int _id, string _author, string _text, DateTime _date, double _sentiment = 0)
         {
             Id = _id;
             CommentAuthor = _author;
@@ -78,15 +78,7 @@ namespace parser.Models
 
         private Color GetBrushColor()
         {
-            switch(Sentiment)
-            {
-                case 1:
-                    return Color.FromRgb(196, 255, 196);
-                case 0:
-                    return Color.FromRgb(255, 196, 196);
-                default:
-                    return Color.FromRgb(255, 255, 196);
-            }
+                return (Sentiment > 0.5) ? Color.FromRgb(196, 255, 196) : Color.FromRgb(255, 196, 196);
         }
 
         [field: NonSerialized]

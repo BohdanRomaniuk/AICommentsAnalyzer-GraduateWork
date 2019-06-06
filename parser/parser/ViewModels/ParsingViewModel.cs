@@ -6,17 +6,21 @@ using parser.Models.Common;
 using parser.Models.Json;
 using parser.Windows;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace parser.ViewModels
 {
@@ -129,7 +133,7 @@ namespace parser.ViewModels
         public ObservableCollection<Movie> Movies { get; set; }
         public ObservableCollection<Comment> Comments { get; set; }
 
-        //Training
+        //Common
         private CommonInfoModel trainingInfo;
         public CommonInfoModel CommonInfo
         {
@@ -140,6 +144,14 @@ namespace parser.ViewModels
                 OnPropertyChanged(nameof(CommonInfo));
             }
         }
+
+        private bool IsTrainCommentsGenerated => CommonInfo.TrainComments.Count != 0;
+        public string TrainCommentsGeneratedTitle => IsTrainCommentsGenerated ? "[Згенерована]" : "[Не згенерована]";
+        public Brush TrainCommentsGeneratedColor => IsTrainCommentsGenerated ? Brushes.Green : Brushes.Red;
+
+        private bool IsTestCommentsGenerated => CommonInfo.TrainComments.Count != 0;
+        public string TestCommentsGeneratedTitle => IsTestCommentsGenerated ? "[Згенерована]" : "[Не згенерована]";
+        public Brush TestCommentsGeneratedColor => IsTestCommentsGenerated ? Brushes.Green : Brushes.Red;
 
         public ICommand GetAllInfoCommand { get; }
         public ICommand OpenParsingMovieWindowCommand { get; }
@@ -152,6 +164,7 @@ namespace parser.ViewModels
         public ICommand OpenSaveTrainCommentsWindowCommand { get; }
         public ICommand OpenSaveTestCommentsWindowCommand { get; }
         public ICommand RemoveNonUkrainianCommand { get; }
+        public ICommand OpenCheckSpellingWindowCommand { get; }
 
         public ICommand LoadResultCommand { get; }
 
@@ -174,6 +187,7 @@ namespace parser.ViewModels
             OpenSaveTestCommentsWindowCommand = new Command(OpenSaveTestCommentsWindow);
             DeleteCommentCommand = new Command(DeleteComment);
             RemoveNonUkrainianCommand = new Command(RemoveNonUkrainian);
+            OpenCheckSpellingWindowCommand = new Command(OpenCheckSpellingWindow);
             LoadResultCommand = new Command(LoadResult);
         }
 
@@ -413,6 +427,8 @@ namespace parser.ViewModels
                     binFormater.Serialize(fileStr, new ObservableCollection<Comment>(Comments.Skip(fromId).Take(toId - fromId + 1)));
                 }
                 CommonInfo.TrainFile = Path.Combine(BaseDirectory, fileName);
+                OnPropertyChanged(nameof(TrainCommentsGeneratedTitle));
+                OnPropertyChanged(nameof(TrainCommentsGeneratedColor));
             }
         }
 
@@ -430,6 +446,8 @@ namespace parser.ViewModels
                     binFormater.Serialize(fileStr, new ObservableCollection<Comment>(Comments.Skip(fromId).Take(toId - fromId + 1)));
                 }
                 CommonInfo.TestFile = Path.Combine(BaseDirectory, fileName);
+                OnPropertyChanged(nameof(TestCommentsGeneratedTitle));
+                OnPropertyChanged(nameof(TestCommentsGeneratedColor));
             }
         }
 
@@ -502,6 +520,93 @@ namespace parser.ViewModels
             {
                 MessageBox.Show(ex.Message, "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void OpenCheckSpellingWindow(object parameter)
+        {
+            if (Comments.Count != 0)
+            {
+                Title = "Виправлення помилок";
+                StartCommand = new Command(CheckSpelling);
+                PagesWindow ppw = new PagesWindow(this);
+                ppw.Show();
+                ppw.Owner = (MainWindow)Application.Current.MainWindow;
+            }
+        }
+
+        private async void CheckSpelling(object paramter)
+        {
+            try
+            {
+                ErrorsCount = 0;
+                Progress = 0;
+                Maximum = To - From + 1;
+                int fromIndex = Comments.Count - From;
+                int toIndex = Comments.Count - To;
+                int correctedCommentsCount = 0;
+                string correctedText = string.Empty;
+                for (int i = fromIndex; i >= toIndex; --i)
+                {
+                    await Task.Run(() =>
+                    {
+                        correctedText = FixSpelling(Comments[i].CommentText);
+                        Thread.Sleep(SleepTime);
+                    });
+                    if (Comments[i].CommentText != correctedText)
+                    {
+                        Comments[i].CommentText = correctedText;
+                        ++correctedCommentsCount;
+                    }
+                    Progress++;
+                }
+                MessageBox.Show($"Виправлено {correctedCommentsCount} коментарів", "Інформація", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Виникла помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private string FixSpelling(string text)
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://api.languagetool.org/v2/check");
+
+            string postData = "disabledRules=WHITESPACE_RULE";
+            postData += "&allowIncompleteResults=true";
+            postData += "&enableHiddenRules=true";
+            postData += "&useragent=ltorg";
+            postData += $"&text={HttpUtility.UrlEncode(text)}";
+            postData += "&language=uk";
+            postData += "&altLanguages=en-US";
+            byte[] data = Encoding.ASCII.GetBytes(postData);
+
+            request.Method = "POST";
+            request.ContentType = "application/x-www-form-urlencoded";
+            request.ContentLength = data.Length;
+
+            using (var stream = request.GetRequestStream())
+            {
+                stream.Write(data, 0, data.Length);
+            }
+
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            string json = new StreamReader(response.GetResponseStream()).ReadToEnd();
+
+            NlpResponse result = JsonConvert.DeserializeObject<NlpResponse>(json);
+            Dictionary<string, string> replacements = new Dictionary<string, string>();
+            foreach (var match in result.matches)
+            {
+                if (match.shortMessage == "Орфографічна помилка")
+                {
+                    replacements[text.Substring(match.offset, match.length)] = match.replacements.FirstOrDefault()?.value ?? string.Empty;
+                }
+            }
+
+            foreach (var replace in replacements)
+            {
+                text = text.Replace(replace.Key, replace.Value);
+            }
+            return text;
         }
     }
 }

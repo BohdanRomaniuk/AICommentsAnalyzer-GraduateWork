@@ -318,6 +318,6 @@ namespace parser.ViewModels
                 }
             }
             CalculateWordsCount();
-        }
+        } 
     }
 }

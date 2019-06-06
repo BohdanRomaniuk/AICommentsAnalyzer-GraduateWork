@@ -108,7 +108,7 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Button Content="Розпарсити фільми" Command="{Binding OpenParsingMovieWindowCommand}" Margin="3" Foreground="Green"/>
+                                        <Button Visibility="Collapsed" Content="Розпарсити фільми" Command="{Binding OpenParsingMovieWindowCommand}" Margin="3" Foreground="Green"/>
                                         <Button Content="Отримати інформацію" Command="{Binding GetAllInfoCommand}" Grid.Column="1" Margin="3"/>
                                     </Grid>
                                 </Grid>
@@ -122,12 +122,14 @@
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="3*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Label Content="Файл коментарів:" HorizontalAlignment="Center"/>
-                                        <TextBox Text="{Binding CommonInfo.TrainFile}" IsReadOnly="True" Grid.Column="1" Margin="3"/>
-                                        <Button Content="Вибрати файл" Grid.Column="2" Command="" Margin="3" />
+                                        <Label Content="Навчальна вибірка:" HorizontalAlignment="Center"/>
+                                        <Label Content="{Binding TrainCommentsGeneratedTitle}" Foreground="{Binding TrainCommentsGeneratedColor}" HorizontalAlignment="Center" Grid.Column="1"/>
+                                        <Label Content="Тестова вибірка:" HorizontalAlignment="Center" Grid.Column="2"/>
+                                        <Label Content="{Binding TestCommentsGeneratedTitle}" Foreground="{Binding TestCommentsGeneratedColor}" HorizontalAlignment="Center" Grid.Column="3"/>
                                     </Grid>
                                     <Grid Grid.Row="1">
                                         <Grid.RowDefinitions>
@@ -141,7 +143,7 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Button Content="Розпарсити фільми" Command="{Binding OpenParsingMovieWindowCommand}" Margin="3"/>
-                                        <Button Content="Видалити іншомовні" Command="{Binding RemoveNonUkrainianCommand}" Margin="3" Grid.Row="1"/>
+                                        <Button Content="Завантажити результат" Foreground="Green" Command="{Binding LoadResultCommand}"  Grid.Row="1" Margin="3"/>
                                         
                                         <Button Content="Відкрити з bin" Command="{Binding OpenFromBinaryCommand}" Margin="3"  Grid.Column="1"/>
                                         <Button Content="Зберегти в bin" Command="{Binding SaveToBinaryCommand}" Margin="3" Grid.Row="2" Grid.Column="1"/>
@@ -149,8 +151,8 @@
                                         <Button Content="Навчальна вибірка" Command="{Binding OpenSaveTrainCommentsWindowCommand}" Margin="3"  Grid.Column="2"/>
                                         <Button Content="Тестова вибірка" Command="{Binding OpenSaveTestCommentsWindowCommand}" Margin="3" Grid.Row="2" Grid.Column="2"/>
 
-                                        <Label Content="[Не тестовано]" HorizontalAlignment="Center" Grid.Column="3" Foreground="Red"/>
-                                        <Button Content="Завантажити результат" Command="{Binding LoadResultCommand}" Grid.Column="3" Grid.Row="1" Margin="3"/>
+                                        <Button Content="Видалити іншомовні" Command="{Binding RemoveNonUkrainianCommand}" Margin="3" Grid.Column="3" />
+                                        <Button Content="Виправити помилки" Command="{Binding OpenCheckSpellingWindowCommand}" Margin="3" Grid.Row="1" Grid.Column="3" />
                                     </Grid>
                                 </Grid>
                             </GroupBox>
@@ -221,7 +223,7 @@
                                 </ListView>
                             </Grid>
                             <Grid Visibility="{Binding IsCommentsListVisible}">
-                                <Grid>
+                                <Grid Margin="3">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="0.01*"></ColumnDefinition>
                                         <ColumnDefinition Width="0.01*"></ColumnDefinition>
@@ -235,7 +237,7 @@
                                     <Border Grid.Column="2" Name="comemntwidth3"></Border>
                                     <Border Grid.Column="3" Name="comemntwidth4"></Border>
                                     <Border Grid.Column="4" Name="comemntwidth5"></Border>
-                                    <Border Grid.Column="4" Name="comemntwidth6"></Border>
+                                    <Border Grid.Column="5" Name="comemntwidth6"></Border>
                                 </Grid>
                                 <ListView x:Name="comments" HorizontalAlignment="Left" Margin="3" ItemsSource="{Binding Path=Comments, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="trimmed">
                                     <i:Interaction.Triggers>
@@ -380,11 +382,12 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Button Content="1. Очистити" Command="{Binding CleanCommand}" Margin="3"/>
-                                        <Button Content="3. Згенерувати *.tsv" Command="{Binding GenerateTrainFileCommand}" Margin="3" Grid.Row="2"/>
                                         <Button Content="2. Видалити шумові слова" Command="{Binding RemoveStopWordsCommand}" Margin="3"  Grid.Column="1"/>
-                                        <Button Content="Переглянути шумові слова" Command="{Binding ViewStopWordsCommand}" Margin="3" Grid.Row="2" Grid.Column="1"/>
 
+                                        <Button Content="3. Згенерувати *.tsv" Command="{Binding GenerateTrainFileCommand}" Margin="3" Grid.Row="1" />
+                                        
                                         <Label Content="Макс. кількість слів:" Grid.Column="2" HorizontalAlignment="Right" />
+                                        <Button Content="Переглянути шумові слова" Command="{Binding ViewStopWordsCommand}" Margin="3" Grid.Row="1" Grid.Column="1"/>
 
                                         <TextBox Text="{Binding MaxWordLength}" Grid.Column="3" Margin="3"/>
                                         <Button Content="Видалити надлишок" Command="{Binding RemoveTextOverflowCommand}" Margin="3" Grid.Row="1" Grid.Column="3"/>

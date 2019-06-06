@@ -132,7 +132,7 @@ namespace parser.ViewModels
                         var line = await stream.ReadLineAsync();
                         var lineValues = line.Split('\t');
                         int.TryParse(lineValues[0].Replace("\"", string.Empty), out var id);
-                        int.TryParse(lineValues[1].Replace("\"", string.Empty), out var sentiment);
+                        double.TryParse(lineValues[1].Replace("\"", string.Empty).Replace('.',','), out var sentiment);
                         var comment = CommonInfo.TestComments.FirstOrDefault(x => x.Id == id);
                         if (comment != null)
                         {
